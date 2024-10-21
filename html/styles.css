@@ -24,16 +24,13 @@ body {
 
 .modal {
     padding: 20px;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     width: 80%;
+    overflow-y: scroll;
+    max-height: 90%;
     max-width: 600px;
     background-color: white;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     border-radius: 10px;
-    overflow: hidden;
 }
 
 .modal-content {
@@ -59,6 +56,10 @@ input,
     display: block;
     width: 100%;
     margin: 10px 0;
+}
+
+.tinyInput {
+    
 }
 
 select,
