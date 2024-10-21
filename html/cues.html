@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCue Cues</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="displayNav.js"></script>
+</head>
+
+<body>
+    <!--Main Sidebar Navigation-->
+    <div class="nav" id="nav"></div>
+
+    <!--Top bar, including Next Cue, and Previous Cue buttons. And Triggers.-->
+    <div class=""></div>
+
+    <!--Cue list-->
+    <div class="cue-list" id="cueList"></div>
+
+    <!--Create Action Modal-->
+    <dialog class="modal" id="actionModal">
+        <h2>Create Action</h2>
+        <label for="actionType">Device Type:</label>
+        <select id="actionType" onchange="updateOptions()">
+            <option value="">Select...</option>
+            <option value="trigger">Trigger</option>
+            <option value="display">Display</option>
+            <option value="eos">Eos Control</option>
+            <option value="wled">WLED</option>
+            <option value="osc">OSC</option>
+            <option value="dmx">DMX</option>
+        </select>
+        <!--Options-->
+        <div>
+            <!--Trigger Options-->
+            <div id="triggerOptions">
+                <label for="triggerName">Trigger Name:</label>
+                <input type="text" id="triggerName">
+            </div>
+
+            <!--Display Options-->
+            <div id="displayOptions">
+                <!--Select Display-->
+                <label for="selectDisplay">Select Display:</label>
+                <select id="selectDisplay"></select>
+
+                <!--Show File or Play Playlist-->
+                <label for="selectDisplayAction">Action Type:</label>
+                <select id="selectDisplayAction">
+                    <option value="file">File</option>
+                    <option value="playlist">Playlist</option>
+                </select>
+
+                <!--File Actions-->
+                <div id="displayFileActions">
+                    <!--Select file to display-->
+                    <label for="selectDisplayFile">File:</label>
+                    <select id="selectDisplayFile"></select>
+
+                    <!--Select how to transition to file.-->
+                    <label for="displayTransition">Transition:</label>
+                    <select id="selectDisplayTransition">
+                        <option value="cut">Cut</option>
+                        <option value="fade">Fade</option>
+                        <option value="slideUp">Slide Up</option>
+                        <option value="slideDown">Slide Down</option>
+                        <option value="slideLeft">Slide Left</option>
+                        <option value="slideRight">Slide Right</option>
+                        <option value="wipeUp">Wipe Up</option>
+                        <option value="wipeDown">Wipe Down</option>
+                        <option value="wipeLeft">Wipe Left</option>
+                        <option value="wipeRight">Wipe Right</option>
+                        <option value="dipToBlack">Dip To Black</option>
+                        <option value="dipToWhite">Dip To White</option>
+                        <option value="Iris">Iris</option>
+                        <option value="zoomIn">Zoom In</option>
+                        <option value="rippleFade">Ripple Fade</option>
+                    </select>
+
+                    <!--Select durration of transition-->
+                    <label for="displayTransitionDurration">Transition Durration:</label>
+                    <input type="number" id="displayTransitionDurration" min="0" max="60" value="1">
+                    <input type="range" id="displayTransitionRange" min="0" max="8" step="0.1" value="1">
+                </div>
+
+                <!--Playlist Actions-->
+                <div id="displayPlaylistActions">
+                    <!--Select playlist to display-->
+                    <label for="selectDisplayPlaylist">Playlist:</label>
+                    <select id="selectDisplayPlaylist"></select>
+                    <label for="displayPlaylistRepeat">Playlist:</label>
+                    <input type="checkbox" id="displayPlaylistRepeat">
+                </div>
+            </div>
+
+            <!--EOS Options-->
+            <div id="eosOptions">
+                <!--Select EOS Device-->
+                <label for="selectEOS">Select EOS Device:</label>
+                <select id="selectEOS"></select>
+
+                <!--Select EOS Action-->
+                <select id="selectEOSAction">
+                    <option value="nextCue">Next Cue</option>
+                    <option value="gotoCue">Goto Cue</option>
+                    <option value="prevCue">Previous Cue</option>
+                    <option value="submaster">Submaster</option>
+                    <option value="recallPreset">Recall Preset</option>
+                    <option value="buttonPress">Press Button</option>
+                    <option value="OSC">Custom OSC Command</option>
+                </select>
+
+                <!--Next Cue-->
+                <div id="EOSNextCue">
+
+                </div>
+
+                <!--Goto Cue-->
+                <div id="EOSGotoCue">
+                    <!--Use Current Open Cue List?-->
+                    <label for="EOSGotoCueCurrentCuelist">Use Current Cuelist:</label>
+                    <input type="checkbox" id="EOSGotoCueCurrentCuelist" checked>
+
+                    <!--Select Cue List (if checked)-->
+                    <div id="selectEOSGotoCueCuelist">
+                        <label for="EOSGotoCueCuelistNumber">Select Cuelist</label>
+                        <input type="number" id="EOSGotoCueCuelistNumber" value="1">
+                    </div>
+
+                    <!--Select Cue-->
+                    <label for="EOSGotoCueCueNumber">Select Cue</label>
+                    <input type="number" id="EOSGotoCueCueNumber" value="1">
+                </div>
+
+                <!--Prev Cue-->
+                <div id="EOSPrevCue">
+
+                </div>
+
+                <!--Submaster-->
+                <div id="EOSSubmaster">
+                    <!--Select Submaster-->
+                    <label for="EOSSubmasterNumber">Select Submaster</label>
+                    <input type="number" id="EOSSubmasterNumber" value="1">
+
+                    <!--Select Action-->
+                    <label for="selectEOSAction">Action:</label>
+                    <select id="selectEOSAction">
+                        <option value="out">Out</option>
+                        <option value="home">Home</option>
+                        <option value="level">Level</option>
+                        <option value="full">Full</option>
+                        <option value="min">Min</option>
+                        <option value="max">Max</option>
+                        <option value="fire">Fire</option>
+                    </select>
+                </div>
+
+                <!--Recall Preset-->
+                <div id="EOSRecallPreset">
+                    <!--Select Preset-->
+                    <label for="EOSSubmasterNumber">Select Submaster</label>
+                    <input type="number" id="EOSSubmasterNumber" value="1">
+                </div>
+
+                <!--Press Button-->
+                <div id="EOSPress Button"></div>
+
+                <!--Custom OSC Command-->
+                <div id="EOSCustomOSC"></div>
+            </div>
+
+            <!--WLED Options-->
+            <div id="wledOptions">
+                <!--Select WLED Device-->
+                <label for="selectWLED">Select WLED Device:</label>
+                <select id="selectWLED"></select>
+
+                <!--Select WLED Action-->
+                <select id="selectWLEDAction">
+                    <option value="on">Turn On</option>
+                    <option value="off">Turn Off</option>
+                    <option value="brightness">Set Brightness</option>
+                    <option value="color">Set Color</option>
+                    <option value="preset">Recall Preset</option>
+                </select>
+
+                <!--Set Brightness-->
+                <div id="WLEDBrightness">
+                    <label for="WLEDBrightnessNumber">Brightness:</label>
+                    <input type="number" id="WLEDBrightnessNumber" min="0" max="100" value="100">
+                    <input type="range" id="WLEDBrightnessRange" min="0" max="100" step="0.1" value="100">
+                </div>
+                <!--Set Color-->
+                <div id="WLEDColor">
+                    <label for="WLEDBrightnessColor">Color:</label>
+                    <input type="color" id="WLEDBrightnessColor">
+                </div>
+                <!--Recall Preset-->
+                <div id="WLEDPreset">
+                    <label for="WLEDBrightnessPreset">Preset:</label>
+                    <input type="number" id="WLEDBrightnessPreset">
+                </div>
+
+            </div>
+
+            <!--OSC Options-->
+            <div id="oscOptions">
+
+            </div>
+
+            <!--DMX Options-->
+            <div id="dmxOptions">
+
+            </div>
+        </div>
+        <button onclick="closeModal()">Close</button>
+    </dialog>
+
+    <script>
+        const Elms = {
+            createActionModal: document.getElementById("actionModal")
+        }
+
+        const createAction = {
+            trigger: {
+                triggerName: document.getElementById("triggerName")
+            },
+            display: {
+                
+            },
+            eos: {},
+            wled: {},
+            osc: {},
+            dmx: {}
+        }
+
+        function openModal() {
+            Elms.createActionModal.showModal();
+        }
+
+        function closeModal() {
+            Elms.createActionModal.close();
+        }
+    </script>
+</body>
+
+</html>

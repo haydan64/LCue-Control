@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Configuration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .device-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .device-item {
+            background: #e9e9e9;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+
+        .device-item h3 {
+            margin: 0;
+        }
+
+        .device-item p {
+            margin: 5px 0;
+        }
+
+        .device-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .device-actions button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            transition-duration: 0.25s;
+        }
+
+        .btn:hover {
+            background: #555;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input[type="text"],
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Device Configuration</h1>
+
+        <ul id="deviceList" class="device-list">
+            <!-- Added devices will appear here -->
+        </ul>
+
+        <button class="btn" id="addDeviceBtn">Add Device</button>
+    </div>
+
+    <!-- Modal for adding a new device -->
+    <div id="addDeviceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Add a Device</h2>
+            <div class="form-group">
+                <label for="deviceProtocol">Protocol</label>
+                <select id="deviceProtocol">
+                    <option value="">Select Protocol</option>
+                    <option value="Art-Net">Art-Net</option>
+                    <option value="sACN">sACN</option>
+                    <option value="WLED">WLED</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="deviceName">Device Name</label>
+                <input type="text" id="deviceName" placeholder="Enter device name">
+            </div>
+
+            <div class="form-group">
+                <label for="deviceIp">IP Address</label>
+                <input type="text" id="deviceIp" placeholder="Enter IP address">
+            </div>
+
+            <div class="form-group" id="portField" style="display: none;">
+                <label for="devicePort">Port</label>
+                <input type="text" id="devicePort" placeholder="Enter port">
+            </div>
+
+            <button class="btn" onclick="addDevice()">Add Device</button>
+        </div>
+    </div>
+    <div id="editDeviceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Edit Device</h2>
+            <div class="form-group">
+                <label for="editDeviceProtocol">Protocol</label>
+                <select id="editDeviceProtocol">
+                    <option value="">Select Protocol</option>
+                    <option value="Art-Net">Art-Net</option>
+                    <option value="sACN">sACN</option>
+                    <option value="WLED">WLED</option>
+                    <option value="Cue Labs">Cue Labs</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="editDeviceName">Device Name</label>
+                <input type="text" id="editDeviceName" placeholder="Enter device name">
+            </div>
+
+            <div class="form-group">
+                <label for="editDeviceIp">IP Address or Hostname</label>
+                <input type="text" id="editDeviceIp" placeholder="Enter IP address Or Hostname">
+            </div>
+
+            <div class="form-group" id="portField" style="display: none;">
+                <label for="editDevicePort">Port</label>
+                <input type="text" id="editDevicePort" placeholder="Enter port">
+            </div>
+
+            <button class="btn" onclick="editDevice()">Save</button>
+        </div>
+    </div>
+
+    <script>
+        const Elms = {
+            addDeviceBtn: document.getElementById('addDeviceBtn'),
+            addDeviceModal: document.getElementById('addDeviceModal'),
+            deviceProtocol: document.getElementById('deviceProtocol'),
+            deviceName: document.getElementById('deviceName'),
+            deviceIp: document.getElementById('deviceIp'),
+            devicePort: document.getElementById('devicePort'),
+            portField: document.getElementById('portField'),
+            deviceList: document.getElementById('deviceList')
+        }
+
+        let devices = [];
+
+        // Open modal when clicking "Add Device"
+        Elms.addDeviceBtn.addEventListener('click', () => {
+            Elms.addDeviceModal.style.display = 'block';
+        });
+
+        // Close modal
+        function closeModal() {
+            Elms.addDeviceModal.style.display = 'none';
+            resetModalFields();
+        }
+
+        // Reset modal input fields
+        function resetModalFields() {
+            Elms.deviceProtocol.value = '';
+            Elms.deviceName.value = '';
+            Elms.deviceIp.value = '';
+            Elms.devicePort.value = '';
+            Elms.portField.style.display = 'none';
+        }
+
+        // Show/hide port field based on the selected protocol
+        Elms.deviceProtocol.addEventListener('change', () => {
+            if (Elms.deviceProtocol.value === 'Art-Net' || Elms.deviceProtocol.value === 'sACN') {
+                Elms.portField.style.display = 'block';
+            } else {
+                Elms.portField.style.display = 'none';
+            }
+        });
+
+        // Add a new device to the list
+        function addDevice() {
+            const protocol = Elms.deviceProtocol.value;
+            const name = Elms.deviceName.value;
+            const ip = Elms.deviceIp.value;
+            const port = Elms.devicePort.value;
+
+            if (!protocol || !name || !ip) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            const newDevice = {
+                protocol,
+                name,
+                ip,
+                port: protocol === 'Art-Net' || protocol === 'sACN' ? port : null
+            };
+
+            devices.push(newDevice);
+            renderDeviceList();
+            closeModal();
+        }
+
+        // Render the device list in the DOM
+        function renderDeviceList() {
+            Elms.deviceList.textContent = '';
+            devices.forEach((device, index) => {
+                const li = document.createElement('li');
+                li.className = 'device-item';
+                // li.innerHTML = `
+                //     <h3>${device.name} (${device.protocol})</h3>
+                //     <p>IP Address: ${device.ip}</p>
+                //     ${device.port ? `<p>Port: ${device.port}</p>` : ''}
+                //     <div class="device-actions">
+                //         <button onclick="editDevice(${index})">Edit</button>
+                //         <button onclick="deleteDevice(${index})">Delete</button>
+                //     </div>
+                // `;
+                deviceList.appendChild(li);
+            });
+        }
+
+        // Delete a device from the list
+        function deleteDevice(index) {
+            devices.splice(index, 1);
+            renderDeviceList();
+        }
+
+        // Edit an existing device (additional logic needed here for editing)
+        function editDevice(index) {
+            const device = devices[index];
+            // Load device details into the modal
+            deviceProtocol.value = device.protocol;
+            deviceName.value = device.name;
+            deviceIp.value = device.ip;
+            if (device.port) {
+                devicePort.value = device.port;
+                portField.style.display = 'block';
+            }
+            addDeviceModal.style.display = 'block';
+
+            // After editing, update the list (additional logic needed to save changes)
+        }
+
+        // Close the modal when clicking outside of it
+        window.onclick = function (event) {
+            if (event.target === addDeviceModal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+
+</html>
