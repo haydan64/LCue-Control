@@ -59,7 +59,8 @@ input,
 }
 
 .tinyInput {
-    
+    display: inline-block;
+    width: fit-content;
 }
 
 select,
