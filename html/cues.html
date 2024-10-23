@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LCue Cues</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="nav-styles.css">
     <script src="displayNav.js"></script>
 </head>
 
@@ -13,14 +14,57 @@
     <!--Main Sidebar Navigation-->
     <div class="nav" id="nav"></div>
 
-    <!--Top bar, including Next Cue, and Previous Cue buttons. And Triggers.-->
-    <div class=""></div>
+    <!--Main Content-->
+    <div class="main">
+        <!--Top bar, including Next Cue, and Previous Cue buttons. And Triggers.-->
+        <div class="top-bar">
+            <!--Cue Actions-->
+            <div class="cue-actions">
+                <button class="prev-cue-button" id="nextCueButton">Prev</button>
+                <button class="next-cue-button" id="prevCueButton">Next</button>
+            </div>
+            <!--Triggers-->
+            <div class="triggerList"></div>
+        </div>
 
-    <!--Cue list-->
-    <div class="cue-list" id="cueList"></div>
+        <!--Cue list-->
+        <div class="cue-list" id="cueList">
+            <div class="cue" onclick="toggleActions('cue1')">
+                <span class="cue-info">1 - Intro Scene</span>
+                <div class="cue-buttons">
+                    <button class="action-btn">Goto</button>
+                    <button class="action-btn">Duplicate</button>
+                    <button class="action-btn">Delete</button>
+                    <button class="action-btn">New action</button>
+                    <button class="action-btn">Paste action</button>
+                </div>
+                <div class="actions" id="cue1">
+                    <div class="action">
+                        <span class="action-name">Light Up</span>
+                        <div class="action-buttons">
+                            <button class="action-btn">run</button>
+                            <button class="action-btn">edit</button>
+                            <button class="action-btn">copy</button>
+                            <button class="action-btn">delete</button>
+                        </div>
+                    </div>
+                    <div class="action">
+                        <span class="action-name">Play Sound</span>
+                        <div class="action-buttons">
+                            <button class="action-btn">run</button>
+                            <button class="action-btn">edit</button>
+                            <button class="action-btn">copy</button>
+                            <button class="action-btn">delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!--Create Action Modal-->
-    <dialog class="modal" id="actionModal">
+    <dialog class="create-action-modal" id="actionModal">
         <h2>Create Action</h2>
         <label for="actionType">Device Type:</label>
         <select id="actionType" onchange="updateOptions()">
@@ -90,8 +134,11 @@
                     <!--Select playlist to display-->
                     <label for="selectDisplayPlaylist">Playlist:</label>
                     <select id="selectDisplayPlaylist"></select>
-                    <label class="tinyInput" for="displayPlaylistRepeat">Playlist:</label>
-                    <input class="tinyInput" type="checkbox" id="displayPlaylistRepeat">
+                    <label class="custom-checkbox" for="displayPlaylistRepeat">
+                        <span class="checkbox-label">Playlist:</span>
+                        <input class="checkbox" type="checkbox" id="displayPlaylistRepeat">
+                        <span class="checkmark"></span>
+                    </label>
                 </div>
             </div>
 
@@ -120,8 +167,11 @@
                 <!--Goto Cue-->
                 <div id="EOSGotoCue">
                     <!--Use Current Open Cue List?-->
-                    <label class="tinyInput" for="EOSGotoCueCurrentCuelist">Use Current Cuelist:</label>
-                    <input class="tinyInput" type="checkbox" id="EOSGotoCueCurrentCuelist" checked>
+                    <label class="custom-checkbox" for="EOSGotoCueCurrentCuelist">
+                        <span class="checkbox-label">Use Current Cuelist:</span>
+                        <input class="create-action-checkbox" type="checkbox" id="EOSGotoCueCurrentCuelist" checked>
+                        <span class="checkmark"></span>
+                    </label>
 
                     <!--Select Cue List (if checked)-->
                     <div id="selectEOSGotoCueCuelist">
@@ -195,8 +245,10 @@
                 </div>
                 <!--Set Color-->
                 <div id="WLEDColor">
-                    <label class="tinyInput" for="WLEDBrightnessColor">Color:</label>
-                    <input class="tinyInput" type="color" id="WLEDBrightnessColor">
+                    <label class="color-input" for="WLEDBrightnessColor">
+                        <span>Color:</span>
+                        <input type="color" id="WLEDBrightnessColor">
+                    </label>
                 </div>
                 <!--Recall Preset-->
                 <div id="WLEDPreset">
@@ -216,7 +268,7 @@
 
             </div>
         </div>
-        <button onclick="closeModal()">Close</button>
+        <button class=".create-action-close-btn" onclick="closeModal()">Close</button>
     </dialog>
 
     <script>
@@ -229,7 +281,7 @@
                 triggerName: document.getElementById("triggerName")
             },
             display: {
-                
+
             },
             eos: {},
             wled: {},
