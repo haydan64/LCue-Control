@@ -1,28 +1,63 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
-    margin: 0;
-    padding: 0;
+    margin: 0px;
+    padding: 0px;
+}
+
+.main {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.top-bar {
+    background-color: #d6d6d6;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    flex-direction: row;
+    gap: 5px;
+    margin-bottom: 10px;
 }
 
-.open-btn {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+.cue-actions {
+    background-color: #c0c0c0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 5px;
 }
 
-.open-btn:hover {
-    background-color: #45a049;
+.cue-actions button {
+    width: 6em;
+    height: 3em;
+    font-size:larger;
+    transition: all;
+    transition-duration: .3s;
 }
 
-.modal {
+.next-cue-button {
+    background-color: #a9e9ac;
+}
+.next-cue-button:hover {
+    background-color: #39e941;
+}
+.next-cue-button:active {
+    background-color: #29a530;
+    transition-duration: 0.1s;
+}
+.prev-cue-button {
+    background-color: rgb(177, 177, 177);
+}
+.prev-cue-button:hover {
+    background-color: rgb(138, 138, 138);
+}
+.prev-cue-button:active {
+    background-color: rgb(83, 83, 83);
+    transition-duration: 0.1s;
+}
+
+
+.create-action-modal {
     padding: 20px;
     width: 80%;
     overflow-y: scroll;
@@ -33,11 +68,7 @@ body {
     border-radius: 10px;
 }
 
-.modal-content {
-    padding: 20px;
-}
-
-.close-btn {
+.create-action-close-btn {
     font-size: 30px;
     font-weight: bold;
     color: #aaa;
@@ -45,25 +76,77 @@ body {
     cursor: pointer;
 }
 
-.close-btn:hover {
+.create-action-close-btn:hover {
     color: black;
 }
 
-label,
-select,
-input,
-.action-btn {
+.color-input {
+    margin: 10px 0px !important;
+    display: flex !important;
+    align-items: center;
+}
+.color-input span {
+    margin-right: 8px;
+}
+.color-input input {
+    width: 4em !important;
+    height: 3em;
+    padding: 2px !important;
+}
+
+.custom-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+}
+.custom-checkbox .checkmark {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ccc;
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.custom-checkbox input[type="checkbox"]:checked+.checkmark {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+.custom-checkbox input[type="checkbox"]:checked+.checkmark::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+.custom-checkbox {
+    margin: 20px 0px !important;
+    display: flex !important;
+    align-items: center;
+}
+.checkbox-label {
+    margin-right: 8px;
+    /* Space between the label and checkbox */
+}
+.custom-checkbox .checkmark:hover {
+    background-color: #f0f0f0;
+}
+
+.create-action-modal label,
+.create-action-modal select,
+.create-action-modal input,
+.create-action-action-btn {
     display: block;
     width: 100%;
     margin: 10px 0;
 }
 
-.tinyInput {
-    
-}
-
-select,
-input {
+.create-action-modal select,
+.create-action-modal input {
     padding: 10px;
     box-sizing: border-box;
     border: 1px solid #ccc;
@@ -71,15 +154,71 @@ input {
 }
 
 .action-btn {
-    padding: 10px;
-    background-color: #4CAF50;
-    color: white;
+    margin-left: 5px;
+    padding: 5px 10px;
     border: none;
-    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 3px;
     cursor: pointer;
-    text-align: center;
 }
 
 .action-btn:hover {
     background-color: #45a049;
+}
+
+.cue-list {
+    width: 100%;
+}
+
+.cue {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.cue-info {
+    flex-grow: 1;
+}
+
+.cue-buttons {
+    display: none;
+}
+
+.cue:hover .cue-buttons {
+    display: flex;
+    width: fit-content;
+    flex-direction: row;
+}
+
+.actions {
+    display: none;
+    margin-left: 20px;
+}
+
+.action {
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    padding: 5px;
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.action-buttons {
+    display: none;
+}
+
+.action:hover .action-buttons {
+    display: inline-block;
+}
+
+.action-name {
+    flex-grow: 1;
 }

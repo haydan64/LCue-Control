@@ -1,10 +1,69 @@
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            padding: 10px 20px;
+            border: 1px solid #007BFF;
+            border-radius: 5px;
+            width: 200px;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        a:hover {
+            background-color: #007BFF;
+            color: #fff;
+        }
+    </style>
 </head>
+
 <body>
-    <a href="./cues.html">Cues</a>
+    <div class="container">
+        <h1>Welcome to LCue</h1>
+        <div class="button-container">
+            <a href="./cues.html">Cues</a>
+            <a href="./triggers.html">Triggers</a>
+            <a href="./devices.html">Devices</a>
+            <a href="./displays.html">Displays</a>
+            <a href="./serverConfig.html">Server Config</a>
+            <a href="./controlConfig.html">Control Config</a>
+            <a href="./connectRemotely.html">Connect Remotely</a>
+        </div>
+    </div>
 </body>
+
 </html>
