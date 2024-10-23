@@ -4,8 +4,8 @@ LCue Control allows you to settup, configure, and control the LCue Server, and a
 
 ## Repositories
 
-- [LCue Server](https://github.com/your-username/LCue-Server): Backend server that manages and controls the displays.
-- [LCue Display](https://github.com/your-username/LCue-Display): Frontend display module for show environments.
+- [LCue Server](https://github.com/haydan64/LCue-Server): Backend server that manages and controls the displays.
+- [LCue Display](https://github.com/haydan64/LCue-Display): Frontend display module for show environments.
 
 ## Installation
 
