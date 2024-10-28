@@ -13,6 +13,21 @@ body {
     box-sizing: border-box;
 }
 
+.center {
+    display: flex;
+    align-items: center;
+}
+
+.container {
+    max-width: 800px; /* Adjust size as needed */
+    margin: 50px auto; /* Center the container */
+    padding: 20px; /* Inner spacing */
+    background-color: #fff; /* Background color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slight shadow for floating effect */
+    border-radius: 8px; /* Rounded corners */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+}
+
 .top-bar {
     background-color: #d6d6d6;
     display: flex;
@@ -59,7 +74,7 @@ body {
 }
 
 
-.create-action-modal {
+.modal {
     padding: 20px;
     width: 80%;
     overflow-y: scroll;
@@ -71,7 +86,13 @@ body {
     border-radius: 10px;
 }
 
-.create-action-close-btn {
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.modal-close-btn {
     font-size: 30px;
     font-weight: bold;
     color: #aaa;
@@ -79,21 +100,21 @@ body {
     cursor: pointer;
 }
 
-.create-action-close-btn:hover {
+.modal-close-btn:hover {
     color: black;
 }
 
-.create-action-modal label,
-.create-action-modal select,
-.create-action-modal input,
+.modal label,
+.modal select,
+.modal input,
 .create-action-action-btn {
     display: block;
     width: 100%;
     margin: 10px 0;
 }
 
-.create-action-modal select,
-.create-action-modal input {
+.modal select,
+.modal input {
     padding: 10px;
     box-sizing: border-box;
     border: 1px solid #ccc;
