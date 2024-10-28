@@ -4,6 +4,10 @@ const db = require("./db");
 const axios = require('axios'); // Import axios for HTTP requests
 const ioClient = require('socket.io-client');
 
+if (!db.get("controlerID")) {
+  db.set("controlerID", Math.floor(Math.random() * 1e9))
+}
+const controlerID = db.get("controlerID");
 
 let window, connectToServerWindow = null;
 
@@ -25,9 +29,13 @@ function connectToServer(serverAddress) {
         baseURL: `http://${serverAddress}`
       });
 
-      socket = ioClient(`http://${serverAddress}`);
+      socket = ioClient(`http://${serverAddress}/controler`);
 
       socket.on('connect', () => {
+        socket.emit('id', {
+          deviceType: "controler",
+          id: controlerID
+        })
         connectedToServer();
       });
 

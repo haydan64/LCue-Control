@@ -7,12 +7,25 @@
     <title>LCue Cues</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="nav-styles.css">
+    <link rel="stylesheet" href="fontawesome-free-6.6.0-web/css/all.min.css">
     <script src="displayNav.js"></script>
 </head>
 
 <body>
-    <!--Main Sidebar Navigation-->
-    <div class="nav" id="nav"></div>
+    <!-- Main Sidebar Navigation -->
+    <div class="nav" id="nav">
+        <ul>
+            <li><a href="./cues.html"><i class="fas fa-forward"></i> <span>Cues</span></a></li>
+            <li><a href="./triggers.html"><i class="fas fa-play-circle"></i> <span>Triggers</span></a></li>
+            <li><a href="./devices.html"><i class="fas fa-desktop"></i> <span>Devices</span></a></li>
+            <li><a href="./displays.html"><i class="fas fa-tv"></i> <span>Displays</span></a></li>
+            <li><a href="./serverConfig.html"><i class="fas fa-server"></i> <span>Server Config</span></a></li>
+            <li><a href="./controlConfig.html"><i class="fas fa-cogs"></i> <span>Control Config</span></a></li>
+            <li><a href="./connectRemotely.html"><i class="fas fa-wifi"></i> <span>Connect Remotely</span></a>
+            </li>
+        </ul>
+    </div>
+
 
     <!--Main Content-->
     <div class="main">
@@ -63,11 +76,11 @@
     </div>
 
 
-    <!--Create Action Modal-->
+    <!--Action Modal-->
     <dialog class="create-action-modal" id="actionModal">
-        <h2>Create Action</h2>
-        <label for="actionType">Device Type:</label>
-        <select id="actionType" onchange="updateOptions()">
+        <h2 id="actionModalHeader">Create Action</h2>
+        <label for="actionType">Action Type:</label>
+        <select id="actionType">
             <option value="">Select...</option>
             <option value="trigger">Trigger</option>
             <option value="display">Display</option>
@@ -103,30 +116,6 @@
                     <label for="selectDisplayFile">File:</label>
                     <select id="selectDisplayFile"></select>
 
-                    <!--Select how to transition to file.-->
-                    <label for="displayTransition">Transition:</label>
-                    <select id="selectDisplayTransition">
-                        <option value="cut">Cut</option>
-                        <option value="fade">Fade</option>
-                        <option value="slideUp">Slide Up</option>
-                        <option value="slideDown">Slide Down</option>
-                        <option value="slideLeft">Slide Left</option>
-                        <option value="slideRight">Slide Right</option>
-                        <option value="wipeUp">Wipe Up</option>
-                        <option value="wipeDown">Wipe Down</option>
-                        <option value="wipeLeft">Wipe Left</option>
-                        <option value="wipeRight">Wipe Right</option>
-                        <option value="dipToBlack">Dip To Black</option>
-                        <option value="dipToWhite">Dip To White</option>
-                        <option value="Iris">Iris</option>
-                        <option value="zoomIn">Zoom In</option>
-                        <option value="rippleFade">Ripple Fade</option>
-                    </select>
-
-                    <!--Select durration of transition-->
-                    <label for="displayTransitionDurration">Transition Durration:</label>
-                    <input type="number" id="displayTransitionDurration" min="0" max="60" value="1">
-                    <input type="range" id="displayTransitionRange" min="0" max="8" step="0.1" value="1">
                 </div>
 
                 <!--Playlist Actions-->
@@ -134,12 +123,60 @@
                     <!--Select playlist to display-->
                     <label for="selectDisplayPlaylist">Playlist:</label>
                     <select id="selectDisplayPlaylist"></select>
+
+                    <!--
+                    Weather the playlist begin at the file where it was last shown
+                    (If checked, displayPlaylistStartAtFile should become unavailable)
+                    -->
+                    <label class="custom-checkbox" for="displayPlaylistResume">
+                        <span class="checkbox-label">Resume Playlist:</span>
+                        <input class="checkbox" type="checkbox" id="displayPlaylistResume">
+                        <span class="checkmark"></span>
+                    </label>
+
+                    <!--Select the file the playlist should show first-->
+                    <label for="displayPlaylistStartAtFile" value="1">Begin With File:</label>
+                    <input type="number" id="displayPlaylistStartAtFile"></input>
+
+                    <!--Weather the playlist should loop once it reaches the end-->
                     <label class="custom-checkbox" for="displayPlaylistRepeat">
-                        <span class="checkbox-label">Playlist:</span>
+                        <span class="checkbox-label">Loop Playlist:</span>
                         <input class="checkbox" type="checkbox" id="displayPlaylistRepeat">
                         <span class="checkmark"></span>
                     </label>
+
+                    <!--Weather the playlist should auto-advance to the next file.-->
+                    <label class="custom-checkbox" for="displayPlaylistAutoAdvance">
+                        <span class="checkbox-label">Auto-Advance:</span>
+                        <input class="checkbox" type="checkbox" id="displayPlaylistAutoAdvance">
+                        <span class="checkmark"></span>
+                    </label>
                 </div>
+
+                <!--Select how to transition to file/playlist.-->
+                <label for="displayTransition">Transition:</label>
+                <select id="selectDisplayTransition">
+                    <option value="cut">Cut</option>
+                    <option value="fade">Fade</option>
+                    <option value="slideUp">Slide Up</option>
+                    <option value="slideDown">Slide Down</option>
+                    <option value="slideLeft">Slide Left</option>
+                    <option value="slideRight">Slide Right</option>
+                    <option value="wipeUp">Wipe Up</option>
+                    <option value="wipeDown">Wipe Down</option>
+                    <option value="wipeLeft">Wipe Left</option>
+                    <option value="wipeRight">Wipe Right</option>
+                    <option value="dipToBlack">Dip To Black</option>
+                    <option value="dipToWhite">Dip To White</option>
+                    <option value="Iris">Iris</option>
+                    <option value="zoomIn">Zoom In</option>
+                    <option value="rippleFade">Ripple Fade</option>
+                </select>
+
+                <!--Select durration of transition-->
+                <label for="displayTransitionDurration">Transition Durration:</label>
+                <input type="number" id="displayTransitionDurration" min="0" max="60" value="1">
+                <input type="range" id="displayTransitionRange" min="0" max="8" step="0.1" value="1">
             </div>
 
             <!--EOS Options-->
@@ -195,9 +232,9 @@
                     <label for="EOSSubmasterNumber">Select Submaster</label>
                     <input type="number" id="EOSSubmasterNumber" value="1">
 
-                    <!--Select Action-->
-                    <label for="selectEOSAction">Action:</label>
-                    <select id="selectEOSAction">
+                    <!--Select Submaster Action-->
+                    <label for="selectSubmasterAction">Action:</label>
+                    <select id="selectSubmasterAction">
                         <option value="out">Out</option>
                         <option value="home">Home</option>
                         <option value="level">Level</option>
@@ -211,12 +248,12 @@
                 <!--Recall Preset-->
                 <div id="EOSRecallPreset">
                     <!--Select Preset-->
-                    <label for="EOSSubmasterNumber">Select Submaster</label>
-                    <input type="number" id="EOSSubmasterNumber" value="1">
+                    <label for="EOSPresetNumber">Select Submaster</label>
+                    <input type="number" id="EOSPresetNumber" value="1">
                 </div>
 
                 <!--Press Button-->
-                <div id="EOSPress Button"></div>
+                <div id="EOSPressButton"></div>
 
                 <!--Custom OSC Command-->
                 <div id="EOSCustomOSC"></div>
@@ -245,15 +282,15 @@
                 </div>
                 <!--Set Color-->
                 <div id="WLEDColor">
-                    <label class="color-input" for="WLEDBrightnessColor">
+                    <label class="color-input" for="WLEDColorHex">
                         <span>Color:</span>
-                        <input type="color" id="WLEDBrightnessColor">
+                        <input type="color" id="WLEDColorHex">
                     </label>
                 </div>
                 <!--Recall Preset-->
                 <div id="WLEDPreset">
-                    <label for="WLEDBrightnessPreset">Preset:</label>
-                    <input type="number" id="WLEDBrightnessPreset">
+                    <label for="WLEDPresetNumber">Preset:</label>
+                    <input type="number" id="WLEDPresetNumber">
                 </div>
 
             </div>
@@ -268,33 +305,195 @@
 
             </div>
         </div>
-        <button class=".create-action-close-btn" onclick="closeModal()">Close</button>
+        <button id="createActionButton" class=".create-action-close-btn">Create Action</button>
+        <button id="closeActionModal" class=".create-action-close-btn">Close</button>
     </dialog>
 
     <script>
         const Elms = {
-            createActionModal: document.getElementById("actionModal")
+            nav: document.getElementById("nav"),
+            nextCueButton: document.getElementById("nextCueButton"),
+            prevCueButton: document.getElementById("prevCueButton"),
+            cueList: document.getElementById("cueList"),
+            cue1: document.getElementById("cue1"),
+            actionModal: document.getElementById("actionModal"),
+            actionModalHeader: document.getElementById("actionModalHeader"),
+            actionType: document.getElementById("actionType"),
+            triggerOptions: document.getElementById("triggerOptions"),
+            triggerName: document.getElementById("triggerName"),
+            displayOptions: document.getElementById("displayOptions"),
+            selectDisplay: document.getElementById("selectDisplay"),
+            selectDisplayAction: document.getElementById("selectDisplayAction"),
+            displayFileActions: document.getElementById("displayFileActions"),
+            selectDisplayFile: document.getElementById("selectDisplayFile"),
+            displayPlaylistActions: document.getElementById("displayPlaylistActions"),
+            selectDisplayPlaylist: document.getElementById("selectDisplayPlaylist"),
+            displayPlaylistResume: document.getElementById("displayPlaylistResume"),
+            displayPlaylistStartAtFile: document.getElementById("displayPlaylistStartAtFile"),
+            displayPlaylistRepeat: document.getElementById("displayPlaylistRepeat"),
+            displayPlaylistAutoAdvance: document.getElementById("displayPlaylistAutoAdvance"),
+            selectDisplayTransition: document.getElementById("selectDisplayTransition"),
+            displayTransitionDurration: document.getElementById("displayTransitionDurration"),
+            displayTransitionRange: document.getElementById("displayTransitionRange"),
+            eosOptions: document.getElementById("eosOptions"),
+            selectEOS: document.getElementById("selectEOS"),
+            selectEOSAction: document.getElementById("selectEOSAction"),
+            EOSNextCue: document.getElementById("EOSNextCue"),
+            EOSGotoCue: document.getElementById("EOSGotoCue"),
+            EOSGotoCueCurrentCuelist: document.getElementById("EOSGotoCueCurrentCuelist"),
+            selectEOSGotoCueCuelist: document.getElementById("selectEOSGotoCueCuelist"),
+            EOSGotoCueCuelistNumber: document.getElementById("EOSGotoCueCuelistNumber"),
+            EOSGotoCueCueNumber: document.getElementById("EOSGotoCueCueNumber"),
+            EOSPrevCue: document.getElementById("EOSPrevCue"),
+            EOSSubmaster: document.getElementById("EOSSubmaster"),
+            EOSSubmasterNumber: document.getElementById("EOSSubmasterNumber"),
+            selectSubmasterAction: document.getElementById("selectSubmasterAction"),
+            EOSRecallPreset: document.getElementById("EOSRecallPreset"),
+            EOSPresetNumber: document.getElementById("EOSPresetNumber"),
+            EOSPressButton: document.getElementById("EOSPressButton"),
+            EOSCustomOSC: document.getElementById("EOSCustomOSC"),
+            wledOptions: document.getElementById("wledOptions"),
+            selectWLED: document.getElementById("selectWLED"),
+            selectWLEDAction: document.getElementById("selectWLEDAction"),
+            WLEDBrightness: document.getElementById("WLEDBrightness"),
+            WLEDBrightnessNumber: document.getElementById("WLEDBrightnessNumber"),
+            WLEDBrightnessRange: document.getElementById("WLEDBrightnessRange"),
+            WLEDColor: document.getElementById("WLEDColor"),
+            WLEDColorHex: document.getElementById("WLEDColorHex"),
+            WLEDPreset: document.getElementById("WLEDPreset"),
+            WLEDPresetNumber: document.getElementById("WLEDPresetNumber"),
+            oscOptions: document.getElementById("oscOptions"),
+            dmxOptions: document.getElementById("dmxOptions"),
+            createActionButton: document.getElementById("createActionButton"),
+            closeActionModal: document.getElementById("closeActionModal")
         }
 
-        const createAction = {
-            trigger: {
-                triggerName: document.getElementById("triggerName")
-            },
-            display: {
+        Elms.actionType.addEventListener("change", () => {
+            console.log(Elms.actionType.value);
+            /*
+            trigger
+            display
+            eos
+            wled
+            osc
+            dmx
+            */
+            switch (Elms.actionType.value) {
+                case ("trigger"): {
+                    Elms.triggerOptions.classList.remove("hidden");
+                    Elms.displayOptions.classList.add("hidden");
+                    Elms.eosOptions.classList.add("hidden");
+                    Elms.wledOptions.classList.add("hidden");
+                    Elms.oscOptions.classList.add("hidden");
+                    Elms.dmxOptions.classList.add("hidden");
+                    break;
+                }
+                case ("display"): {
+                    Elms.triggerOptions.classList.add("hidden");
+                    Elms.displayOptions.classList.remove("hidden");
+                    Elms.eosOptions.classList.add("hidden");
+                    Elms.wledOptions.classList.add("hidden");
+                    Elms.oscOptions.classList.add("hidden");
+                    Elms.dmxOptions.classList.add("hidden");
 
-            },
-            eos: {},
-            wled: {},
-            osc: {},
-            dmx: {}
-        }
+                    break;
+                }
+                case ("eos"): {
+                    Elms.triggerOptions.classList.add("hidden");
+                    Elms.displayOptions.classList.add("hidden");
+                    Elms.eosOptions.classList.remove("hidden");
+                    Elms.wledOptions.classList.add("hidden");
+                    Elms.oscOptions.classList.add("hidden");
+                    Elms.dmxOptions.classList.add("hidden");
 
-        function openModal() {
-            Elms.createActionModal.showModal();
+                    break;
+                }
+                case ("wled"): {
+                    Elms.triggerOptions.classList.add("hidden");
+                    Elms.displayOptions.classList.add("hidden");
+                    Elms.eosOptions.classList.add("hidden");
+                    Elms.wledOptions.classList.remove("hidden");
+                    Elms.oscOptions.classList.add("hidden");
+                    Elms.dmxOptions.classList.add("hidden");
+
+                    break;
+                }
+                case ("osc"): {
+                    Elms.triggerOptions.classList.add("hidden");
+                    Elms.displayOptions.classList.add("hidden");
+                    Elms.eosOptions.classList.add("hidden");
+                    Elms.wledOptions.classList.add("hidden");
+                    Elms.oscOptions.classList.remove("hidden");
+                    Elms.dmxOptions.classList.add("hidden");
+
+                    break;
+                }
+                case ("dmx"): {
+                    Elms.triggerOptions.classList.add("hidden");
+                    Elms.displayOptions.classList.add("hidden");
+                    Elms.eosOptions.classList.add("hidden");
+                    Elms.wledOptions.classList.add("hidden");
+                    Elms.oscOptions.classList.add("hidden");
+                    Elms.dmxOptions.classList.remove("hidden");
+
+                    break;
+                }
+            }
+        })
+
+        function openCreateActionModal() {
+            Elms.actionModalHeader.textContent = "Create Action";
+            Elms.actionType.value = "";
+            Elms.triggerName.value = "";
+            Elms.selectDisplay.value = "";
+            Elms.selectDisplayAction.value = "file"
+            Elms.displayFileActions.classList.remove("hidden");
+            Elms.selectDisplayFile.value = "";
+            Elms.displayPlaylistActions.classList.add("hidden");
+            Elms.selectDisplayPlaylist.value = "";
+            Elms.displayPlaylistResume.checked = false;
+            Elms.displayPlaylistStartAtFile.value = "1"
+            Elms.displayPlaylistRepeat.checked = true;
+            Elms.displayPlaylistAutoAdvance.checked = true;
+            Elms.selectDisplayTransition.value = "cut";
+            Elms.displayTransitionDurration.value = "1";
+            Elms.displayTransitionRange.value = "1";
+            Elms.selectEOS.value = "";
+            Elms.selectEOSAction.value = "gotoCue"
+            Elms.EOSNextCue.classList.add("hidden");
+            Elms.EOSGotoCue.classList.remove("hidden");
+            Elms.EOSGotoCueCurrentCuelist.checked = true;
+            Elms.selectEOSGotoCueCuelist.classList.add("hidden");
+            Elms.EOSGotoCueCuelistNumber.value = "1";
+            Elms.EOSGotoCueCueNumber.value = "1"; //Maybe set this to the last gotocue + 1
+            Elms.EOSPrevCue.classList.add("hidden");
+            Elms.EOSSubmaster.classList.add("hidden");
+            Elms.EOSSubmasterNumber.value = "1";
+            Elms.selectSubmasterAction.value = "home";
+            Elms.EOSRecallPreset.classList.add("hidden");
+            Elms.EOSPresetNumber.value = "1";
+            Elms.EOSPressButton.classList.add("hidden");
+            Elms.EOSCustomOSC.classList.add("hidden");
+            Elms.selectWLED.value = "";
+            Elms.selectWLEDAction.value = "on"
+            Elms.WLEDBrightness.classList.add("hidden");
+            Elms.WLEDBrightnessNumber.value = "100";
+            Elms.WLEDBrightnessRange.value = "100";
+            Elms.WLEDColor.classList.add("hidden");
+            Elms.WLEDColorHex.value = "#000000";
+            Elms.WLEDPreset.classList.add("hidden");
+            Elms.WLEDPresetNumber.value =
+                Elms.triggerOptions.classList.add("hidden");
+            Elms.displayOptions.classList.add("hidden");
+            Elms.eosOptions.classList.add("hidden");
+            Elms.wledOptions.classList.add("hidden");
+            Elms.oscOptions.classList.add("hidden");
+            Elms.dmxOptions.classList.add("hidden");
+            Elms.actionModal.showModal();
         }
 
         function closeModal() {
-            Elms.createActionModal.close();
+            Elms.actionModal.close();
         }
     </script>
 </body>

@@ -3,6 +3,8 @@ body {
     background-color: #f0f0f0;
     margin: 0px;
     padding: 0px;
+    display: grid;
+    grid-template-columns: min-content auto;
 }
 
 .main {
@@ -61,6 +63,7 @@ body {
     padding: 20px;
     width: 80%;
     overflow-y: scroll;
+    overflow-x: wrap;
     max-height: 90%;
     max-width: 600px;
     background-color: white;
@@ -78,6 +81,37 @@ body {
 
 .create-action-close-btn:hover {
     color: black;
+}
+
+.create-action-modal label,
+.create-action-modal select,
+.create-action-modal input,
+.create-action-action-btn {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+}
+
+.create-action-modal select,
+.create-action-modal input {
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.action-btn {
+    margin-left: 5px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    background-color: #45a049;
 }
 
 .color-input {
@@ -135,36 +169,8 @@ body {
 .custom-checkbox .checkmark:hover {
     background-color: #f0f0f0;
 }
-
-.create-action-modal label,
-.create-action-modal select,
-.create-action-modal input,
-.create-action-action-btn {
-    display: block;
-    width: 100%;
-    margin: 10px 0;
-}
-
-.create-action-modal select,
-.create-action-modal input {
-    padding: 10px;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.action-btn {
-    margin-left: 5px;
-    padding: 5px 10px;
-    border: none;
-    background-color: #007BFF;
-    color: white;
-    border-radius: 3px;
-    cursor: pointer;
-}
-
-.action-btn:hover {
-    background-color: #45a049;
+.create-action-checkbox {
+    width: min-content !important;
 }
 
 .cue-list {
@@ -221,4 +227,8 @@ body {
 
 .action-name {
     flex-grow: 1;
+}
+
+.hidden {
+    display: none !important;
 }
