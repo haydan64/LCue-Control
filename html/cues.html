@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="nav-styles.css">
     <link rel="stylesheet" href="fontawesome-free-6.6.0-web/css/all.min.css">
     <script src="displayNav.js"></script>
+    <script src="dataLink.js"></script>
 </head>
 
 <body>
@@ -367,6 +368,11 @@
             closeActionModal: document.getElementById("closeActionModal")
         }
 
+        let Triggers = {};
+        let Cues = {};
+        let Devices = {};
+        let Displays = {};
+
         Elms.actionType.addEventListener("change", () => {
             console.log(Elms.actionType.value);
             /*
@@ -493,6 +499,10 @@
 
         function closeModal() {
             Elms.actionModal.close();
+        }
+
+        function displayTriggers() {
+
         }
     </script>
 </body>

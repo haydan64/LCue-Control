@@ -146,6 +146,12 @@
             tryConnect();
         })
 
+        api.connectingToServer((serverAddress)=>{
+            Elms.form.style.display = "none";
+            Elms.connectingServerAddress.textContent = `Connecting to ${serverAddress}`;
+            Elms.connecting.style.display = "flex";
+        })
+
         function tryConnect() {
             Elms.form.style.display = "none";
             Elms.connectingServerAddress.textContent = `Connecting to ${Elms.serverAddress.value}`;

@@ -6,6 +6,9 @@ contextBridge.exposeInMainWorld(
         send: (channel, data) => {
             if(["connectToAddress"].includes(channel))
             ipcRenderer.send(channel, data);
+        },
+        connectingToServer: (cb) => {
+            ipcRenderer.on("connectingTo", cb)
         }
     }
 );
