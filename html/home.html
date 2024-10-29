@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="fontawesome-free-6.6.0-web/css/all.min.css">
     <title>Home Page</title>
     <style>
         body {
@@ -40,13 +41,16 @@
             border: 1px solid #007BFF;
             border-radius: 5px;
             width: 200px;
-            text-align: center;
+            text-align: left;
             transition: background-color 0.3s, color 0.3s;
         }
 
         a:hover {
             background-color: #007BFF;
             color: #fff;
+        }
+        a i {
+            margin-right: 20px;
         }
     </style>
 </head>
@@ -55,13 +59,12 @@
     <div class="container">
         <h1>Welcome to LCue</h1>
         <div class="button-container">
-            <a href="./cues.html">Cues</a>
-            <a href="./triggers.html">Triggers</a>
-            <a href="./devices.html">Devices</a>
-            <a href="./displays.html">Displays</a>
-            <a href="./serverConfig.html">Server Config</a>
-            <a href="./controlConfig.html">Control Config</a>
-            <a href="./connectRemotely.html">Connect Remotely</a>
+            <a href="./cues.html"><i class="fas fa-forward"></i>Cues</a>
+            <a href="./devices.html"><i class="fas fa-desktop"></i>Devices</a>
+            <a href="./displays.html"><i class="fas fa-tv"></i>Displays</a>
+            <a href="./serverConfig.html"><i class="fas fa-server"></i>Server Config</a>
+            <a href="./controlConfig.html"><i class="fas fa-cogs"></i>Control Config</a>
+            <a href="./connectRemotely.html"><i class="fas fa-wifi"></i>Connect Remotely</a>
         </div>
     </div>
 </body>
