@@ -42,13 +42,13 @@
 
         <!--Cue list-->
         <div class="cue-list" id="cueList">
-            <div class="cue" onclick="toggleActions('cue1')">
+            <div class="cue">
                 <span class="cue-info">1 - Intro Scene</span>
                 <div class="cue-buttons">
                     <button class="action-btn">Goto</button>
                     <button class="action-btn">Duplicate</button>
                     <button class="action-btn">Delete</button>
-                    <button class="action-btn">New action</button>
+                    <button class="action-btn" onclick="openCreateActionModal()">New action</button>
                     <button class="action-btn">Paste action</button>
                 </div>
                 <div class="actions" id="cue1">
@@ -487,8 +487,8 @@
             Elms.WLEDColor.classList.add("hidden");
             Elms.WLEDColorHex.value = "#000000";
             Elms.WLEDPreset.classList.add("hidden");
-            Elms.WLEDPresetNumber.value =
-                Elms.triggerOptions.classList.add("hidden");
+            Elms.WLEDPresetNumber.value = "1"
+            Elms.triggerOptions.classList.add("hidden");
             Elms.displayOptions.classList.add("hidden");
             Elms.eosOptions.classList.add("hidden");
             Elms.wledOptions.classList.add("hidden");
