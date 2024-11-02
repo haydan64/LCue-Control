@@ -108,8 +108,10 @@ function connectToServer(serverAddress) {
             socket.on('connect', () => {
                 socket.emit('id', {
                     deviceType: "controler",
+                    version: "0",
                     id: controlerID
                 });
+                //socket.emit("display", 694478262, "showFile", "Untitled.png") <== Test, I can't believe it actually worked first try!
                 if (db.get("serverAddress") !== serverAddress) db.set("serverAddress", serverAddress);
                 connectedToServer();
             });
