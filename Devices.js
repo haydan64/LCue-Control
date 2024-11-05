@@ -1,6 +1,5 @@
 const { EventEmitter } = require('events');
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./your-database-file.db');
+const db = require("./db")
 
 class Device extends EventEmitter {
     constructor(type, options) {
@@ -49,6 +48,7 @@ class Devices extends EventEmitter {
     }
 
     loadDisplays(displays) {
+        if(!displays) return;
         this.deviceList = {};
         Object.entries(displays).forEach((display)=>{
             const [id, type, options] = display;

@@ -4,12 +4,20 @@ const db = require("./db");
 const axios = require('axios'); // Import axios for HTTP requests
 const ioClient = require('socket.io-client');
 
+//Important initialization
 if (!db.get("controlerID")) {
     db.set("controlerID", Math.floor(Math.random() * 1e9))
 }
 const controlerID = db.get("controlerID");
 
 let window, connectToServerWindow = null;
+
+const { Displays } = require("./Displays.js");
+const { Cues } = require("./Cues.js");
+const { Actions } = require("./Actions.js");
+const { Triggers } = require("./Actions.js");
+const Devices = require("./Devices.js");
+
 
 
 let http, socket;
@@ -111,7 +119,13 @@ function connectToServer(serverAddress) {
                     version: "0",
                     id: controlerID
                 });
+                socket.on("displaysSync", (event, ...args)=>{
+                    Displays.emit(event, ...args)
+                })
                 //socket.emit("display", 694478262, "showFile", "Untitled.png") <== Test, I can't believe it actually worked first try!
+                socket.on("displaySync", (id, event, ...args)=>{
+                    Displays.displays[id]?.emit(event, ...args);
+                });
                 if (db.get("serverAddress") !== serverAddress) db.set("serverAddress", serverAddress);
                 connectedToServer();
             });
