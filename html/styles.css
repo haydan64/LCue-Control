@@ -29,7 +29,7 @@ body {
 }
 
 .top-bar {
-    background-color: #d6d6d6;
+    background-color: #333;
     display: flex;
     flex-direction: row;
     gap: 5px;
@@ -37,7 +37,7 @@ body {
 }
 
 .cue-actions {
-    background-color: #c0c0c0;
+    background-color: #444;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -54,6 +54,8 @@ body {
 
 .next-cue-button {
     background-color: #a9e9ac;
+    border: none;
+    border-radius: 5px;
 }
 .next-cue-button:hover {
     background-color: #39e941;
@@ -64,6 +66,8 @@ body {
 }
 .prev-cue-button {
     background-color: rgb(177, 177, 177);
+    border: none;
+    border-radius: 5px;
 }
 .prev-cue-button:hover {
     background-color: rgb(138, 138, 138);
@@ -73,6 +77,20 @@ body {
     transition-duration: 0.1s;
 }
 
+.cue-list-options input[type="button"] {
+    background-color: #007BFF;
+    border: none;
+    padding: 5px 10px;
+    color: white;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.cue-list-options input[type="button"]:hover {
+    background-color: #45a049;
+}
+.cue-list-options input[type="button"]:active {
+    background-color: #1b601e;
+}
 
 .modal {
     padding: 20px;
@@ -93,14 +111,20 @@ body {
 }
 
 .modal-close-btn {
-    font-size: 30px;
-    font-weight: bold;
+    font-size: 1.2em;
+    margin-right: 20px;
+    margin-top: 20px;
     color: #aaa;
-    float: right;
+    background-color: #ffffff;
+    border: solid #aaa;
+    border-width: 1px;
+    border-radius: 5px;
     cursor: pointer;
 }
 
 .modal-close-btn:hover {
+    border: solid #444;
+    border-width: 1px;
     color: black;
 }
 
@@ -133,6 +157,9 @@ body {
 
 .action-btn:hover {
     background-color: #45a049;
+}
+.action-btn:active {
+    background-color: #1b601e;
 }
 
 .color-input {

@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="nav-styles.css">
     <link rel="stylesheet" href="fontawesome-free-6.6.0-web/css/all.min.css">
     <script src="displayNav.js"></script>
-    <script src="dataLink.js"></script>
 </head>
 
 <body>
@@ -72,6 +71,10 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <!--Cue list options-->
+        <div class="cue-list-options" id="cueListOptions">
+            <input type=button value="New Cue">
         </div>
     </div>
 
@@ -305,8 +308,8 @@
 
             </div>
         </div>
-        <button id="createActionButton" class=".create-action-close-btn">Create Action</button>
-        <button id="closeActionModal" class=".create-action-close-btn">Close</button>
+        <button id="createActionButton" class="modal-close-btn">Create Action</button>
+        <button id="closeActionModal" class="modal-close-btn">Close</button>
     </dialog>
 
     <script>
@@ -367,12 +370,7 @@
             createActionButton: document.getElementById("createActionButton"),
             closeActionModal: document.getElementById("closeActionModal")
         }
-
-        let Triggers = {};
-        let Cues = {};
-        let Devices = {};
-        let Displays = {};
-
+        placeCues();
         Elms.actionType.addEventListener("change", () => {
             console.log(Elms.actionType.value);
             /*
@@ -446,55 +444,322 @@
             }
         })
 
+        Elms.selectDisplayAction.addEventListener("change", () => {
+            switch (Elms.selectDisplayAction.value) {
+                case ("file"): {
+                    Elms.displayFileActions.classList.remove("hidden");
+                    Elms.displayPlaylistActions.classList.add("hidden");
+                    break;
+                }
+                case ("playlist"): {
+                    Elms.displayFileActions.classList.add("hidden");
+                    Elms.displayPlaylistActions.classList.remove("hidden");
+                    break;
+                }
+            }
+        });
+        Elms.displayPlaylistResume.addEventListener("change", () => {
+            if (Elms.displayPlaylistResume.checked) {
+                Elms.displayPlaylistStartAtFile.disabled = true;
+            } else {
+                Elms.displayPlaylistStartAtFile.disabled = false;
+            }
+        });
+        Elms.selectEOSAction.addEventListener("change", () => {
+            switch (Elms.selectEOSAction.value) {
+                case ("nextCue"): {
+                    Elms.EOSNextCue.classList.remove("hidden");
+                    Elms.EOSGotoCue.classList.add("hidden");
+                    Elms.EOSPrevCue.classList.add("hidden");
+                    Elms.EOSSubmaster.classList.add("hidden");
+                    Elms.EOSRecallPreset.classList.add("hidden");
+                    Elms.EOSPressButton.classList.add("hidden");
+                    Elms.EOSCustomOSC.classList.add("hidden");
+                    break;
+                }
+                case ("gotoCue"): {
+                    Elms.EOSNextCue.classList.add("hidden");
+                    Elms.EOSGotoCue.classList.remove("hidden");
+                    Elms.EOSPrevCue.classList.add("hidden");
+                    Elms.EOSSubmaster.classList.add("hidden");
+                    Elms.EOSRecallPreset.classList.add("hidden");
+                    Elms.EOSPressButton.classList.add("hidden");
+                    Elms.EOSCustomOSC.classList.add("hidden");
+                    break;
+                }
+                case ("prevCue"): {
+                    Elms.EOSNextCue.classList.add("hidden");
+                    Elms.EOSGotoCue.classList.add("hidden");
+                    Elms.EOSPrevCue.classList.remove("hidden");
+                    Elms.EOSSubmaster.classList.add("hidden");
+                    Elms.EOSRecallPreset.classList.add("hidden");
+                    Elms.EOSPressButton.classList.add("hidden");
+                    Elms.EOSCustomOSC.classList.add("hidden");
+                    break;
+                }
+                case ("submaster"): {
+                    Elms.EOSNextCue.classList.add("hidden");
+                    Elms.EOSGotoCue.classList.add("hidden");
+                    Elms.EOSPrevCue.classList.add("hidden");
+                    Elms.EOSSubmaster.classList.remove("hidden");
+                    Elms.EOSRecallPreset.classList.add("hidden");
+                    Elms.EOSPressButton.classList.add("hidden");
+                    Elms.EOSCustomOSC.classList.add("hidden");
+                    break;
+                }
+                case ("recallPreset"): {
+                    Elms.EOSNextCue.classList.add("hidden");
+                    Elms.EOSGotoCue.classList.add("hidden");
+                    Elms.EOSPrevCue.classList.add("hidden");
+                    Elms.EOSSubmaster.classList.add("hidden");
+                    Elms.EOSRecallPreset.classList.remove("hidden");
+                    Elms.EOSPressButton.classList.add("hidden");
+                    Elms.EOSCustomOSC.classList.add("hidden");
+                    break;
+                }
+                case ("buttonPress"): {
+                    Elms.EOSNextCue.classList.add("hidden");
+                    Elms.EOSGotoCue.classList.add("hidden");
+                    Elms.EOSPrevCue.classList.add("hidden");
+                    Elms.EOSSubmaster.classList.add("hidden");
+                    Elms.EOSRecallPreset.classList.add("hidden");
+                    Elms.EOSPressButton.classList.remove("hidden");
+                    Elms.EOSCustomOSC.classList.add("hidden");
+                    break;
+                }
+                case ("OSC"): {
+                    Elms.EOSNextCue.classList.add("hidden");
+                    Elms.EOSGotoCue.classList.add("hidden");
+                    Elms.EOSPrevCue.classList.add("hidden");
+                    Elms.EOSSubmaster.classList.add("hidden");
+                    Elms.EOSRecallPreset.classList.add("hidden");
+                    Elms.EOSPressButton.classList.add("hidden");
+                    Elms.EOSCustomOSC.classList.remove("hidden");
+                    break;
+                }
+            }
+        })
+
+        Elms.EOSGotoCueCurrentCuelist.addEventListener("change", () => {
+            if (Elms.EOSGotoCueCurrentCuelist.checked) {
+                Elms.selectEOSGotoCueCuelist.classList.add("hidden");
+            } else {
+                Elms.selectEOSGotoCueCuelist.classList.remove("hidden");
+            }
+        })
+
+        Elms.selectWLEDAction.addEventListener("change", () => {
+            switch (Elms.selectWLEDAction.value) {
+                case ("on"): {
+                    Elms.WLEDBrightness.classList.add("hidden");
+                    Elms.WLEDColor.classList.add("hidden");
+                    Elms.WLEDPreset.classList.add("hidden");
+                    break;
+                }
+                case ("off"): {
+                    Elms.WLEDBrightness.classList.add("hidden");
+                    Elms.WLEDColor.classList.add("hidden");
+                    Elms.WLEDPreset.classList.add("hidden");
+                    break;
+                }
+                case ("brightness"): {
+                    Elms.WLEDBrightness.classList.remove("hidden");
+                    Elms.WLEDColor.classList.add("hidden");
+                    Elms.WLEDPreset.classList.add("hidden");
+                    break;
+                }
+                case ("color"): {
+                    Elms.WLEDBrightness.classList.add("hidden");
+                    Elms.WLEDColor.classList.remove("hidden");
+                    Elms.WLEDPreset.classList.add("hidden");
+                    break;
+                }
+                case ("preset"): {
+                    Elms.WLEDBrightness.classList.add("hidden");
+                    Elms.WLEDColor.classList.add("hidden");
+                    Elms.WLEDPreset.classList.remove("hidden");
+                    break;
+                }
+            }
+        });
+
         function openCreateActionModal() {
             Elms.actionModalHeader.textContent = "Create Action";
-            Elms.actionType.value = "";
-            Elms.triggerName.value = "";
-            Elms.selectDisplay.value = "";
-            Elms.selectDisplayAction.value = "file"
-            Elms.displayFileActions.classList.remove("hidden");
-            Elms.selectDisplayFile.value = "";
-            Elms.displayPlaylistActions.classList.add("hidden");
-            Elms.selectDisplayPlaylist.value = "";
-            Elms.displayPlaylistResume.checked = false;
-            Elms.displayPlaylistStartAtFile.value = "1"
-            Elms.displayPlaylistRepeat.checked = true;
-            Elms.displayPlaylistAutoAdvance.checked = true;
-            Elms.selectDisplayTransition.value = "cut";
-            Elms.displayTransitionDurration.value = "1";
-            Elms.displayTransitionRange.value = "1";
-            Elms.selectEOS.value = "";
-            Elms.selectEOSAction.value = "gotoCue"
-            Elms.EOSNextCue.classList.add("hidden");
-            Elms.EOSGotoCue.classList.remove("hidden");
-            Elms.EOSGotoCueCurrentCuelist.checked = true;
-            Elms.selectEOSGotoCueCuelist.classList.add("hidden");
-            Elms.EOSGotoCueCuelistNumber.value = "1";
-            Elms.EOSGotoCueCueNumber.value = "1"; //Maybe set this to the last gotocue + 1
-            Elms.EOSPrevCue.classList.add("hidden");
-            Elms.EOSSubmaster.classList.add("hidden");
-            Elms.EOSSubmasterNumber.value = "1";
-            Elms.selectSubmasterAction.value = "home";
-            Elms.EOSRecallPreset.classList.add("hidden");
-            Elms.EOSPresetNumber.value = "1";
-            Elms.EOSPressButton.classList.add("hidden");
-            Elms.EOSCustomOSC.classList.add("hidden");
-            Elms.selectWLED.value = "";
-            Elms.selectWLEDAction.value = "on"
-            Elms.WLEDBrightness.classList.add("hidden");
-            Elms.WLEDBrightnessNumber.value = "100";
-            Elms.WLEDBrightnessRange.value = "100";
-            Elms.WLEDColor.classList.add("hidden");
-            Elms.WLEDColorHex.value = "#000000";
-            Elms.WLEDPreset.classList.add("hidden");
-            Elms.WLEDPresetNumber.value = "1"
-            Elms.triggerOptions.classList.add("hidden");
-            Elms.displayOptions.classList.add("hidden");
-            Elms.eosOptions.classList.add("hidden");
-            Elms.wledOptions.classList.add("hidden");
-            Elms.oscOptions.classList.add("hidden");
-            Elms.dmxOptions.classList.add("hidden");
+            populateActionModal({//default action
+                type: "trigger",
+                trigger: {
+                    id: "",
+                },
+                display: {
+                    id: "",
+                    action: "file",
+                    file: "",
+                    playlist: "",
+                    resume: false,
+                    startAt: 1,
+                    repeat: true,
+                    autoAdvance: true,
+                    transition: "cut",
+                    durration: 1
+                },
+                eos: {
+                    id: "",
+                    action: "gotoCue",
+                    currentCuelist: true,
+                    cuelist: 1,
+                    cue: 1,
+                    submaster: 1,
+                    submasterAction: "home",
+                    preset: 1
+                },
+                wled: {
+                    id: "",
+                    action: "on",
+                    brightness: "100",
+                    color: "#ff0000",
+                    preset: 1
+                }
+            });
             Elms.actionModal.showModal();
+        }
+
+        function collectActionModal() {
+            const options = {};
+            options.type = Elms.actionType.value;
+
+            options.trigger = {};
+            options.trigger.id = Elms.triggerName.value;
+
+            options.display = {};
+            options.display.id = Elms.selectDisplay.value;
+            options.display.action = Elms.selectDisplayAction.value;
+            options.display.file = Elms.selectDisplayFile.value;
+            options.display.playlist = Elms.selectDisplayPlaylist.value;
+            options.display.resume = Elms.displayPlaylistResume.checked;
+            options.display.startAt = Elms.displayPlaylistStartAtFile.value;
+            options.display.repeat = Elms.displayPlaylistRepeat.checked;
+            options.display.autoAdvance = Elms.displayPlaylistAutoAdvance.checked;
+            options.display.transition = Elms.selectDisplayTransition.value;
+            options.display.durration = Elms.displayTransitionDurration.value;
+
+            options.eos = {};
+            options.eos.id = Elms.selectEOS.value;
+            options.eos.action = Elms.selectEOSAction.value;
+            options.eos.currentCuelist = Elms.EOSGotoCueCurrentCuelist.checked;
+            options.eos.cuelist = Elms.EOSGotoCueCuelistNumber.value;
+            options.eos.cue = Elms.EOSGotoCueCueNumber.value;
+            options.eos.submaster = Elms.EOSSubmasterNumber.value;
+            options.eos.submasterAction = Elms.selectSubmasterAction.value;
+            options.eos.preset = Elms.EOSPresetNumber.value;
+
+            options.wled = {};
+            options.wled.id = Elms.selectWLED.value;
+            options.wled.action = Elms.selectWLEDAction.value;
+            options.wled.brightness = Elms.WLEDBrightnessNumber.value;
+            options.wled.color = Elms.WLEDColorHex.value;
+            options.wled.preset = Elms.WLEDPresetNumber.value;
+
+            options.osc = {};
+            options.osc.id = null;
+            options.osc.message = null;
+
+            options.dmx = {};
+            options.dmx.id = null;
+            options.dmx.options = {};
+
+            return options;
+        }
+
+        function populateActionModal(options) {
+            if (options.type !== undefined) {
+                Elms.actionType.value = options.type;
+                triggerChange(Elms.actionType);
+            }
+            
+            if (options.trigger && options.trigger.id !== undefined) {
+                Elms.triggerName.value = options.trigger.id;
+            }
+            
+            if (options.display) {
+                if (options.display.id !== undefined) Elms.selectDisplay.value = options.display.id;
+                if (options.display.action !== undefined) Elms.selectDisplayAction.value = options.display.action;
+                triggerChange(Elms.selectDisplayAction);
+                if (options.display.file !== undefined) Elms.selectDisplayFile.value = options.display.file;
+                if (options.display.playlist !== undefined) Elms.selectDisplayPlaylist.value = options.display.playlist;
+                if (options.display.resume !== undefined) Elms.displayPlaylistResume.checked = options.display.resume;
+                triggerChange(Elms.displayPlaylistResume);
+                if (options.display.startAt !== undefined) Elms.displayPlaylistStartAtFile.value = options.display.startAt;
+                if (options.display.repeat !== undefined) Elms.displayPlaylistRepeat.checked = options.display.repeat;
+                if (options.display.autoAdvance !== undefined) Elms.displayPlaylistAutoAdvance.checked = options.display.autoAdvance;
+                if (options.display.transition !== undefined) Elms.selectDisplayTransition.value = options.display.transition;
+                if (options.display.durration !== undefined) Elms.displayTransitionDurration.value = options.display.durration;
+            }
+            
+            if (options.eos) {
+                if (options.eos.id !== undefined) Elms.selectEOS.value = options.eos.id;
+                if (options.eos.action !== undefined) Elms.selectEOSAction.value = options.eos.action;
+                triggerChange(Elms.selectEOSAction);
+                if (options.eos.currentCuelist !== undefined) Elms.EOSGotoCueCurrentCuelist.checked = options.eos.currentCuelist;
+                triggerChange(Elms.EOSGotoCueCurrentCuelist);
+                if (options.eos.cuelist !== undefined) Elms.EOSGotoCueCuelistNumber.value = options.eos.cuelist;
+                if (options.eos.cue !== undefined) Elms.EOSGotoCueCueNumber.value = options.eos.cue;
+                if (options.eos.submaster !== undefined) Elms.EOSSubmasterNumber.value = options.eos.submaster;
+                if (options.eos.submasterAction !== undefined) Elms.selectSubmasterAction.value = options.eos.submasterAction;
+                if (options.eos.preset !== undefined) Elms.EOSPresetNumber.value = options.eos.preset;
+            }
+            
+            if (options.wled) {
+                if (options.wled.id !== undefined) Elms.selectWLED.value = options.wled.id;
+                if (options.wled.action !== undefined) Elms.selectWLEDAction.value = options.wled.action;
+                triggerChange(Elms.selectWLEDAction);
+                if (options.wled.brightness !== undefined) Elms.WLEDBrightnessNumber.value = options.wled.brightness;
+                if (options.wled.color !== undefined) Elms.WLEDColorHex.value = options.wled.color;
+                if (options.wled.preset !== undefined) Elms.WLEDPresetNumber.value = options.wled.preset;
+            }
+
+            if (options.osc) {
+                // Since osc.id and osc.message are set to null in the original code, no DOM elements are updated
+            }
+
+            if (options.dmx) {
+                // Since dmx.id and dmx.options are set to null in the original code, no DOM elements are updated
+            }
+        }
+
+        function placeCues() {
+            let current = Cues.head;
+            Elms.cueList.textContent = "";
+            while(current) {
+                const cueElm = document.createElement("div");
+                cueElm.classList.add("cue");
+                const cueInfoElm = document.createElement("span");
+                cueInfoElm.classList.add("cue-info");
+                cueInfoElm.textContent = `${current.position} - ${current.name || ""}`;
+                cueElm.appendChild(cueInfoElm);
+                const cueActionsElm = document.createElement("div");
+                cueActionsElm.classList.add("actions");
+                cueElm.addEventListener("click", ()=>{
+                    if(cueActionsElm.style.display === "none") {
+                        cueActionsElm.style.display = "block";
+                    } else {
+                        cueActionsElm.style.display = "none";
+                    }
+                });
+                current.actions.forEach(action => {
+                    const cueActionElm = document.createElement("div");
+                    cueActionElm.classList.add("action");
+                    const cueActionNameElm = document.createElement("span");
+                    cueActionNameElm.classList.add("action-name");
+                    cueActionNameElm.textContent = `${action.id} - ${action.type}`
+                    cueActionsElm.appendChild(cueActionElm);
+                });
+                cueElm.appendChild(cueActionsElm);
+                current = current.prev;
+            }
+        }
+
+        function triggerChange(elm) {
+            elm.dispatchEvent(new Event("change"))
         }
 
         function closeModal() {
@@ -504,6 +769,7 @@
         function displayTriggers() {
 
         }
+
     </script>
 </body>
 
