@@ -15,7 +15,7 @@ let window, connectToServerWindow = null;
 const { Displays } = require("./Displays.js");
 const { Cues } = require("./Cues.js");
 const { Actions } = require("./Actions.js");
-const { Triggers } = require("./Actions.js");
+const { Triggers } = require("./Triggers.js");
 const Devices = require("./Devices.js");
 
 
@@ -23,12 +23,6 @@ function isPositionWithinBounds(x, y, width, height, tolerance = 10) {
     const displays = screen.getAllDisplays();
     for (let display of displays) {
         const bounds = display.bounds;
-        console.log(
-            x >= bounds.x - tolerance,
-            y >= bounds.y - tolerance,
-            x + width <= bounds.x + bounds.width + tolerance,
-            y + height <= bounds.y + bounds.height + tolerance
-        );
         if (
             x >= bounds.x - tolerance &&
             y >= bounds.y - tolerance &&
@@ -147,13 +141,12 @@ function connectToServer(serverAddress) {
                 });
                 socket.on("displaysSync", (event, ...args) => {
                     Displays.emit(event, ...args)
-                })
+                });
                 //socket.emit("display", 694478262, "showFile", "Untitled.png") <== Test, I can't believe it actually worked first try!
                 socket.on("displaySync", (id, event, ...args) => {
                     Displays.displays[id]?.emit(event, ...args);
                 });
                 Cues.on("sync", (event, ...args) => {
-                    console.log(event, ...args);
                     socket.emit("cues", event, ...args);
                 });
                 socket.on("cuesSync", (event, ...args) => {
@@ -274,7 +267,6 @@ function createHomeWindow() {
 ipcMain.on('show-context-menu', (event, options)=> {
     let template;
     if(!options.type) return;
-    console.log("Context Menu Opened")
     switch(options.type) {
         case("cue"): {
             template = [
@@ -308,14 +300,22 @@ ipcMain.on('show-context-menu', (event, options)=> {
                     Actions.triggerAction(options.id)
                 }},
                 {label: "Edit Action", click: ()=>{
-                    event.sender.send('actionctx:edit', options.id);
+                    event.sender.send('actionctx:edit', options.id, options.cueID, Actions.actions[options.id]?.options);
                 }},
                 {label: "Copy Action", click: ()=>{
-                    event.sender.send('actionctx:copyTo', options.id);
+                    event.sender.send('actionctx:copy', options.id);
                 }},
                 {label: "Delete Action", click: ()=>{
                     Cues.deleteCue(options.id)}
                 }
+            ]
+            break;
+        }
+        case("triggerBox"): {
+            template = [
+                {label: "New Trigger", click: ()=>{
+                    Tiggers.triggerAction(options.id)
+                }}
             ]
             break;
         }
@@ -325,7 +325,6 @@ ipcMain.on('show-context-menu', (event, options)=> {
 });
 function emitWindow(event, ...args) {
     if(window && window.webContents) {
-        console.log(event, args);
         window.webContents.send(event, ...args);
     }
 }
@@ -342,15 +341,30 @@ ipcMain.on("cues:moveCue", (event, id, newPosition) => {
 ipcMain.on("cues:createAction", (event, id, options)=> {
     Cues.createAction(id, options);
 });
+ipcMain.on("cues:editAction", (event, id, options)=> {
+    Actions.editAction(id, options);
+});
 ipcMain.handle("cues:getCues", () => {
-    console.log(Cues.getCues(true));
     return Cues.getCues(true);
 });
 ipcMain.handle("actions:getAction", (event, action) => {
     return Actions.actions[action];
 });
+ipcMain.handle("displays:getDisplay", (event, id) => {
+    console.log(id, Displays.displays);
+    return {files:Displays.displays[id].files, playlists:Displays.displays[id].playlists};
+});
+ipcMain.handle("getDevicesAndDisplays", (event) => {
+    return {
+        devices: Devices.getDevices(),
+        displays: Displays.getDisplays()
+    }
+});
 Cues.on("show", (event, ...args)=> {
     emitWindow("cues:" + event, ...args);
+});
+Actions.on("show", (event, ...args)=> {
+    emitWindow("actions:" + event, ...args);
 });
 
 app.on('window-all-closed', () => {

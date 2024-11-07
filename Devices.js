@@ -6,6 +6,12 @@ class Device extends EventEmitter {
         this.type = type;
         this.options = options;
     }
+    toJSON() {
+        return {
+            type: this.type,
+            options: this.options
+        }
+    }
 }
 
 class OSCDevice extends Device {
@@ -41,15 +47,12 @@ class WLEDDevice extends Device {
 class Devices extends EventEmitter {
     constructor() {
         super();
-        this.deviceList = {}; // Store devices here
-        
-        // Load displays from database
-        this.loadDisplays();
+        this.devices = {}; // Store devices here
     }
 
-    loadDisplays(displays) {
+    loadDevices(displays) {
         if(!displays) return;
-        this.deviceList = {};
+        this.devices = {};
         Object.entries(displays).forEach((display)=>{
             const [id, type, options] = display;
             
@@ -67,6 +70,11 @@ class Devices extends EventEmitter {
             Object.assign(device, newData);
             this.emit('deviceUpdated', device);
         }
+    }
+    getDevices() {
+        return Object.entries(this.devices).map(([id, display])=>{
+            return display.toJSON();
+        })
     }
 }
 

@@ -47,21 +47,34 @@
                     <label for="deviceProtocol">Type Of Device:</label>
                     <select id="deviceProtocol">
                         <option value="">Select</option>
-                        <option value="artnet">EOS Console</option>
+                        <option value="eos">EOS Console</option>
                         <option value="dmx">DMX</option>
-                        <option value="dmx">MIDI</option>
+                        <option value="midi">MIDI</option>
                         <option value="wled">WLED</option>
                         <option value="osc">OSC Device</option>
                     </select>
                 </div>
-
+                <div id="inputDeviceName">
                     <label for="deviceName">Device Name</label>
                     <input type="text" id="deviceName" placeholder="Enter device name">
+                </div>
 
+                <div id="inputDeviceIP">
                     <label for="deviceIp">IP Address</label>
                     <input type="text" id="deviceIp" placeholder="Enter IP address">
+                </div>
 
-                <button class="btn" onclick="addDevice()">Add Device</button>
+                <div id="inputDevicePort">
+                    <label for="deviceIp">Port</label>
+                    <input type="text" id="deviceIp" placeholder="Port">
+                </div>
+
+                <div id="inputDeviceCom">
+                    <label for="deviceIp">Serial Port</label>
+                    <input type="text" id="deviceIp" placeholder="Serial Port">
+                </div>
+
+                <button class="btn" class="modal-close-btn" onclick="addDevice()">Add Device</button>
             </div>
         </dialog>
         <dialog id="editDeviceModal" class="modal">
@@ -108,7 +121,11 @@
             deviceIp: document.getElementById('deviceIp'),
             devicePort: document.getElementById('devicePort'),
             portField: document.getElementById('portField'),
-            deviceList: document.getElementById('deviceList')
+            deviceList: document.getElementById('deviceList'),
+            inputDeviceName: document.getElementById('inputDeviceName'),
+            inputDeviceIP: document.getElementById('inputDeviceIP'),
+            inputDevicePort: document.getElementById('inputDevicePort'),
+            inputDeviceCom: document.getElementById('inputDeviceCom'),
         }
 
         let devices = [];
@@ -135,10 +152,24 @@
 
         // Show/hide port field based on the selected protocol
         Elms.deviceProtocol.addEventListener('change', () => {
-            if (Elms.deviceProtocol.value === 'Art-Net' || Elms.deviceProtocol.value === 'sACN') {
-                Elms.portField.style.display = 'block';
-            } else {
-                Elms.portField.style.display = 'none';
+            switch(Elms.deviceProtocol) {
+                case("eos"): {
+                    Elms.inputDeviceName
+                    E
+                    break;
+                }
+                case("dmx"): {
+                    break;
+                }
+                case("midi"): {
+                    break;
+                }
+                case("wled"): {
+                    break;
+                }
+                case("osc"): {
+                    break;
+                }
             }
         });
 

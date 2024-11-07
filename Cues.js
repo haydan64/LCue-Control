@@ -19,15 +19,6 @@ class Cue {
         cues.triggerCue(this.id)
     }
 
-    addAction(triggerID) {
-        this.actions.push(triggerID); // Update actions in db 
-        db.run(`UPDATE cues SET actions = ? WHERE id = ?`,
-            [this.actions.join(','), this.id],
-            (err) => {
-                if (err) { console.error(err.message); }
-            }
-        );
-    }
     toJSON() {
         return {
             id: this.id,
@@ -111,8 +102,8 @@ class Cues extends EventEmitter {
         });
         this.on("actionCreated", (id, action)=> {
             if(!this.cues[id]) return;
-            this.cues[id].actions.push(action);
-            this.emit("show", "actionCreated", id, action);
+            this.cues[id].actions.push(action.id);
+            this.emit("show", "actionCreated", id, action.id);
         });
         this.on("setCues", (cueList) => {
             cueList.forEach(cue => {

@@ -14,19 +14,30 @@ class Display extends EventEmitter {
         this.on("fileList", (fileList) => {
             this.files = fileList;
             this.emit("files", fileList);
-        })
+        });
         this.on("playlist", (playlists)=> {
             this.playlists = playlists;
             this.emit("sync", "playlists", playlists);
-        })
-        this.on("showFile", this.showFile);
-        this.on("showPlaylist", this.showPlaylist);
-        this.on("advancePlaylist", this.advancePlaylist);
-        this.on("downloadFile", this.downloadFile);
-        this.on("name", this.changeName);
-        this.on("alwaysOnTop", this.changeAlwaysOnTop);
-        this.on("startFullscreen", this.changeStartFullscreen);
-        this.on("startInKiosk", this.changeStartInKiosk);
+        });
+        // this.on("showFile", this.showFile);
+        // this.on("showPlaylist", this.showPlaylist);
+        // this.on("advancePlaylist", this.advancePlaylist);
+        // this.on("downloadFile", this.downloadFile);
+        // this.on("name", this.changeName);
+        // this.on("alwaysOnTop", this.changeAlwaysOnTop);
+        // this.on("startFullscreen", this.changeStartFullscreen);
+        // this.on("startInKiosk", this.changeStartInKiosk);
+    }
+    toJSON() {
+        return {
+            id: this.id,
+            name: this.name,
+            alwaysOnTop: this.alwaysOnTop,
+            startFullscreen: this.startFullscreen,
+            startInKiosk: this.startInKiosk,
+            files: this.files,
+            playlists: this.playlists
+        }
     }
 }
 
@@ -38,10 +49,24 @@ class Displays extends EventEmitter {
     constructor() {
         super();
         this.displays = {};
+        this.on("setDisplays", (displays)=>{
+            displays.forEach((display)=>{
+                this.displays[display.id] = new Display(
+                    display.id,
+                    display.name,
+                    display.alwaysOnTop,
+                    display.startFullscreen,
+                    display.startInKiosk,
+                    display.files,
+                    display.playlists
+                )
+            })
+            this.emit("show", "displaysSet", displays);
+        })
     }
-    setDisplays(displays) {
-        displays.forEach((display)=>{
-
+    getDisplays() {
+        return Object.entries(this.displays).map(([id, display])=>{
+            return display.toJSON();
         })
     }
 }

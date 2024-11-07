@@ -29,14 +29,14 @@
     <!--Main Content-->
     <div class="main">
         <!--Top bar, including Next Cue, and Previous Cue buttons. And Triggers.-->
-        <div class="top-bar">
+        <div id="topBar" class="top-bar">
             <!--Cue Actions-->
             <div class="cue-actions">
                 <button class="prev-cue-button" id="nextCueButton">Prev</button>
                 <button class="next-cue-button" id="prevCueButton">Next</button>
             </div>
             <!--Triggers-->
-            <div class="triggerList"></div>
+            <div id="triggerList" class="triggerList"></div>
         </div>
 
         <!--Cue list-->
@@ -88,6 +88,12 @@
                     <label for="selectDisplayFile">File:</label>
                     <select id="selectDisplayFile"></select>
 
+                    <!--Show File or Play Playlist-->
+                    <label for="selectDisplayFileAction">File Action:</label>
+                    <select id="selectDisplayFileAction">
+                        <option value="loop">Loop Video</option>
+                        <option value="pause">Pause At End</option>
+                    </select>
                 </div>
 
                 <!--Playlist Actions-->
@@ -140,9 +146,8 @@
                     <option value="wipeRight">Wipe Right</option>
                     <option value="dipToBlack">Dip To Black</option>
                     <option value="dipToWhite">Dip To White</option>
-                    <option value="Iris">Iris</option>
+                    <option value="iris">Iris</option>
                     <option value="zoomIn">Zoom In</option>
-                    <option value="rippleFade">Ripple Fade</option>
                 </select>
 
                 <!--Select durration of transition-->
@@ -277,6 +282,7 @@
 
             </div>
         </div>
+        <button id="editActionButton" class="modal-close-btn hidden">Save Action</button>
         <button id="createActionButton" class="modal-close-btn">Create Action</button>
         <button id="closeActionModal" class="modal-close-btn">Close</button>
     </dialog>
@@ -309,6 +315,8 @@
     <script>
         const Elms = {
             nav: document.getElementById("nav"),
+            triggerList: document.getElementById("triggerList"),
+            topBar: document.getElementById("topBar"),
             nextCueButton: document.getElementById("nextCueButton"),
             prevCueButton: document.getElementById("prevCueButton"),
             cueList: document.getElementById("cueList"),
@@ -323,6 +331,7 @@
             selectDisplayAction: document.getElementById("selectDisplayAction"),
             displayFileActions: document.getElementById("displayFileActions"),
             selectDisplayFile: document.getElementById("selectDisplayFile"),
+            selectDisplayFileAction: document.getElementById("selectDisplayFileAction"),
             displayPlaylistActions: document.getElementById("displayPlaylistActions"),
             selectDisplayPlaylist: document.getElementById("selectDisplayPlaylist"),
             displayPlaylistResume: document.getElementById("displayPlaylistResume"),
@@ -374,6 +383,7 @@
             cueNewName: document.getElementById("cueNewName"),
             cueNameModalSubmit: document.getElementById("cueNameModalSubmit"),
             cueNameModalCancel: document.getElementById("cueNameModalCancel"),
+            editActionButton: document.getElementById("editActionButton"),
             toast: document.getElementById("toast"),
             toastHeader: document.getElementById("toastHeader"),
             toastBody: document.getElementById("toastBody")
@@ -388,10 +398,13 @@
             }, 3400);
         }
 
+        Elms.topBar.addEventListener("contextmenu", (e)=>{
+            e.preventDefault();
+            api.emit("show-context-menu", { type: "triggerBox" });
+        })
         placeCues();
 
         Elms.actionType.addEventListener("change", () => {
-            console.log(Elms.actionType.value);
             /*
             trigger
             display
@@ -462,7 +475,17 @@
                 }
             }
         })
-
+        Elms.selectDisplay.addEventListener("change", () => {
+            api.invoke("displays:getDisplay", Elms.selectDisplay.value).then((display) => {
+                Elms.selectDisplayFile.textContent="";
+                display.files.forEach((file) => {
+                    const option = document.createElement("option");
+                    option.value = file;
+                    option.textContent = file;
+                    Elms.selectDisplayFile.appendChild(option);
+                })
+            })
+        })
         Elms.selectDisplayAction.addEventListener("change", () => {
             switch (Elms.selectDisplayAction.value) {
                 case ("file"): {
@@ -614,6 +637,7 @@
                     id: "",
                     action: "file",
                     file: "",
+                    fileAction: "loop",
                     playlist: "",
                     resume: false,
                     startAt: 1,
@@ -640,7 +664,32 @@
                     preset: 1
                 }
             });
+            Elms.createActionButton.classList.remove("hidden");
+            Elms.editActionButton.classList.add("hidden");
             Elms.actionModal.showModal();
+        }
+        let editActionModal = null;
+        function openEditActionModal(options) {
+            Elms.actionModalHeader.textContent = "Edit Action";
+            Elms.createActionButton.classList.add("hidden");
+            Elms.editActionButton.classList.remove("hidden");
+            populateActionModal(options);
+            Elms.actionModal.showModal();
+        }
+
+        updateDevicesAndDisplays();
+        function updateDevicesAndDisplays() {
+            api.invoke("getDevicesAndDisplays").then((data) => {
+                console.log("DISPLAYS", data.displays);
+                console.log("DEVICES", data.devices);
+                Elms.selectDisplay.textContent = "";
+                data?.displays?.forEach(display => {
+                    const option = document.createElement("option");
+                    option.value = display.id;
+                    option.textContent = display.name;
+                    Elms.selectDisplay.appendChild(option);
+                })
+            })
         }
 
         function collectActionModal() {
@@ -654,6 +703,7 @@
             options.display.id = Elms.selectDisplay.value;
             options.display.action = Elms.selectDisplayAction.value;
             options.display.file = Elms.selectDisplayFile.value;
+            options.display.fileAction = Elms.selectDisplayFileAction.value;
             options.display.playlist = Elms.selectDisplayPlaylist.value;
             options.display.resume = Elms.displayPlaylistResume.checked;
             options.display.startAt = Elms.displayPlaylistStartAtFile.value;
@@ -702,9 +752,11 @@
 
             if (options.display) {
                 if (options.display.id !== undefined) Elms.selectDisplay.value = options.display.id;
+                triggerChange(Elms.selectDisplay);
                 if (options.display.action !== undefined) Elms.selectDisplayAction.value = options.display.action;
                 triggerChange(Elms.selectDisplayAction);
                 if (options.display.file !== undefined) Elms.selectDisplayFile.value = options.display.file;
+                if (options.display.fileAction !== undefined) Elms.selectDisplayFileAction.value = options.display.fileAction;
                 if (options.display.playlist !== undefined) Elms.selectDisplayPlaylist.value = options.display.playlist;
                 if (options.display.resume !== undefined) Elms.displayPlaylistResume.checked = options.display.resume;
                 triggerChange(Elms.displayPlaylistResume);
@@ -784,8 +836,8 @@
             cueElm.addEventListener("contextmenu", e => {
                 //make sure clicked on element doesn't have the "action" class
                 let element = e.target;
-                while(element) {
-                    if(element.classList.contains("action")) return;
+                while (element) {
+                    if (element.classList.contains("action")) return;
                     element = element.parentElement;
                 }
                 e.preventDefault();
@@ -795,6 +847,7 @@
         }
         function createCueActionElm(cueID, action) {
             const cueActionElm = document.createElement("div");
+            cueActionElm.id = "action#" + action;
             cueActionElm.classList.add("action");
 
             const cueActionNameElm = document.createElement("span");
@@ -802,73 +855,78 @@
             cueActionElm.appendChild(cueActionNameElm);
             cueActionElm.addEventListener("contextmenu", e => {
                 e.preventDefault();
-                api.emit("show-context-menu", { type: "action", id: action.id, cueID: cueID });
+                api.emit("show-context-menu", { type: "action", id: action, cueID: cueID });
             });
             api.invoke("actions:getAction", action).then((action) => {
-                let name = `${action.id} - ${action.type}`;
-                switch (action.options.type) {
-                    case ("trigger"): {
-                        name = `Trigger ${action.options.trigger.id}`
-                        break;
-                    }
-                    case ("display"): {
-                        name = `${({
-                            "cut": "Cut",
-                            "fade": "Fade",
-                            "slideUp": "Slide Up",
-                            "slideDown": "Slide Down",
-                            "slideLeft": "Slide Left",
-                            "slideRight": "Slide Right",
-                            "wipeUp": "Wipe Up",
-                            "wipeDown": "Wipe Down",
-                            "wipeLeft": "Wipe Left",
-                            "wipeRight": "Wipe Right",
-                            "dipToBlack": "Dip To Black",
-                            "dipToWhite": "Dip To White",
-                            "Iris": "Iris",
-                            "zoomIn": "Zoom In",
-                            "rippleFade": "Ripple Fade",
-                        })[action.options.display.transition]} To ${action.options.action === 'file' ?
-                            `File ${action.options.display.file}` :
-                            `Playlist ${action.options.playlist}`}`
-                        break;
-                    }
-                    case ("eos"): {
-                        switch (action.options.eos.action) {
-                            case ("nextCue"): {
-                                name = "EOS Next Cue";
-                                break;
-                            }
-                            case ("gotoCue"): {
-                                name = "EOS Goto Cue " + action.options.eos.cue;
-                                break;
-                            }
-                            case ("prevCue"): {
-                                name = "EOS Prev CUe";
-                                break;
-                            }
-                            case ("submaster"): {
-                                name = "EOS Submaster";
-                                break;
-                            }
-                            case ("recallPreset"): {
-                                name = "EOS Recall Preset";
-                                break;
-                            }
-                            case ("buttonPress"): {
-                                name = "EOS Press Button";
-                                break;
-                            }
-                            case ("OSC"): {
-                                name = "EOS Custom OSC Message";
-                                break;
-                            }
+                if (!action) return;
+                filloutActionElm(cueActionElm, action.id, action.options)
+            });
+
+            return cueActionElm;
+        }
+        function filloutActionElm(cueActionElm, id, options) {
+            let name = `${id} - ${options.type}`;
+            switch (options.type) {
+                case ("trigger"): {
+                    name = `Trigger ${options.trigger.id}`
+                    break;
+                }
+                case ("display"): {
+                    name = `${({
+                        "cut": "Cut",
+                        "fade": "Fade",
+                        "slideUp": "Slide Up",
+                        "slideDown": "Slide Down",
+                        "slideLeft": "Slide Left",
+                        "slideRight": "Slide Right",
+                        "wipeUp": "Wipe Up",
+                        "wipeDown": "Wipe Down",
+                        "wipeLeft": "Wipe Left",
+                        "wipeRight": "Wipe Right",
+                        "dipToBlack": "Dip To Black",
+                        "dipToWhite": "Dip To White",
+                        "Iris": "Iris",
+                        "zoomIn": "Zoom In",
+                        "rippleFade": "Ripple Fade",
+                    })[options.display.transition]} To ${options.action === 'file' ?
+                        `File ${options.display.file}` :
+                        `Playlist ${options.playlist}`}`
+                    break;
+                }
+                case ("eos"): {
+                    switch (options.eos.action) {
+                        case ("nextCue"): {
+                            name = "EOS Next Cue";
+                            break;
+                        }
+                        case ("gotoCue"): {
+                            name = "EOS Goto Cue " + options.eos.cue;
+                            break;
+                        }
+                        case ("prevCue"): {
+                            name = "EOS Prev CUe";
+                            break;
+                        }
+                        case ("submaster"): {
+                            name = "EOS Submaster";
+                            break;
+                        }
+                        case ("recallPreset"): {
+                            name = "EOS Recall Preset";
+                            break;
+                        }
+                        case ("buttonPress"): {
+                            name = "EOS Press Button";
+                            break;
+                        }
+                        case ("OSC"): {
+                            name = "EOS Custom OSC Message";
+                            break;
                         }
                     }
                 }
-                cueActionNameElm.textContent = name;
-            })
-            return cueActionElm;
+            }
+            cueActionElm.getElementsByClassName("action-name").item(0).textContent = name;
         }
 
         function triggerChange(elm) {
@@ -880,7 +938,6 @@
         });
 
         api.on("cues:addedCue", (cue, prevCue) => {
-            console.log("Added Cue")
             if (prevCue) {
                 let prevCueElm = document.getElementById("cue#" + prevCue);
                 if (prevCueElm) {
@@ -894,7 +951,6 @@
             }
         })
         api.on("cues:deletedCue", (id) => {
-            console.log("DELETE CUE ", id)
             let cueElm = document.getElementById("cue#" + id);
             if (cueElm) cueElm.remove();
         })
@@ -945,17 +1001,35 @@
         Elms.createActionButton.addEventListener("click", () => {
             const options = collectActionModal();
             api.emit("cues:createAction", createActionModal, options);
+            Elms.actionModal.close();
+        })
+        Elms.editActionButton.addEventListener("click", () => {
+            const options = collectActionModal();
+            api.emit("cues:editAction", createActionModal, options);
+            Elms.actionModal.close();
         })
         Elms.closeActionModal.addEventListener("click", () => {
             Elms.actionModal.close();
         })
         api.on("cues:actionCreated", (id, action) => {
-            Elms.actionModal.close();
             let actionsElm = document.getElementById("cueA#" + id);
             if (actionsElm) {
                 actionsElm.appendChild(createCueActionElm(id, action));
             } else {
                 placeCues();
+            }
+        })
+
+        api.on("actionctx:edit", (id, cueID, options) => {
+            if (!options) return;
+            createActionModal = id;
+            openEditActionModal(options);
+        });
+
+        api.on("actions:actionEdited", (id, options) => {
+            let actionElm = document.getElementById("action#" + id);
+            if (actionElm) {
+                filloutActionElm(actionElm, id, options);
             }
         })
 
