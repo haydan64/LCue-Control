@@ -40,41 +40,10 @@
         </div>
 
         <!--Cue list-->
-        <div class="cue-list" id="cueList">
-            <div class="cue">
-                <span class="cue-info">1 - Intro Scene</span>
-                <div class="cue-buttons">
-                    <button class="action-btn">Goto</button>
-                    <button class="action-btn">Duplicate</button>
-                    <button class="action-btn">Delete</button>
-                    <button class="action-btn" onclick="openCreateActionModal()">New action</button>
-                    <button class="action-btn">Paste action</button>
-                </div>
-                <div class="actions" id="cue1">
-                    <div class="action">
-                        <span class="action-name">Light Up</span>
-                        <div class="action-buttons">
-                            <button class="action-btn">run</button>
-                            <button class="action-btn">edit</button>
-                            <button class="action-btn">copy</button>
-                            <button class="action-btn">delete</button>
-                        </div>
-                    </div>
-                    <div class="action">
-                        <span class="action-name">Play Sound</span>
-                        <div class="action-buttons">
-                            <button class="action-btn">run</button>
-                            <button class="action-btn">edit</button>
-                            <button class="action-btn">copy</button>
-                            <button class="action-btn">delete</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="cue-list" id="cueList"></div>
         <!--Cue list options-->
         <div class="cue-list-options" id="cueListOptions">
-            <input type=button value="New Cue">
+            <input type=button value="New Cue" id="newCueButton">
         </div>
     </div>
 
@@ -312,6 +281,31 @@
         <button id="closeActionModal" class="modal-close-btn">Close</button>
     </dialog>
 
+    <dialog class="modal" id="cueNameModal">
+        <h2 id="cueNameModalHeader">Move Cue To</h2>
+
+        <!--The position for which to move the cue to-->
+        <label for="cueNewName" value="1">Name:</label>
+        <input type="text" id="cueNewName"></input>
+
+        <button id="cueNameModalSubmit" class="modal-close-btn">Name</button>
+        <button id="cueNameModalCancel" class="modal-close-btn">Cancel</button>
+    </dialog>
+    <dialog class="modal" id="cueMoveToModal">
+        <h2 id="cueMoveToModalHeader">Move Cue To</h2>
+
+        <!--The position for which to move the cue to-->
+        <label for="cueMoveToNewPosition" value="1">New Position:</label>
+        <input type="number" id="cueMoveToNewPosition"></input>
+
+        <button id="cueMoveToModalSubmit" class="modal-close-btn">Move</button>
+        <button id="cueMoveToModalCancel" class="modal-close-btn">Cancel</button>
+    </dialog>
+    <div id="toast" class="toast">
+        <h2 id="toastHeader"></h2>
+        <p id="toastBody"></p>
+    </div>
+
     <script>
         const Elms = {
             nav: document.getElementById("nav"),
@@ -368,9 +362,34 @@
             oscOptions: document.getElementById("oscOptions"),
             dmxOptions: document.getElementById("dmxOptions"),
             createActionButton: document.getElementById("createActionButton"),
-            closeActionModal: document.getElementById("closeActionModal")
+            closeActionModal: document.getElementById("closeActionModal"),
+            newCueButton: document.getElementById("newCueButton"),
+            cueMoveToModal: document.getElementById("cueMoveToModal"),
+            cueMoveToModalHeader: document.getElementById("cueMoveToModalHeader"),
+            cueMoveToNewPosition: document.getElementById("cueMoveToNewPosition"),
+            cueMoveToModalSubmit: document.getElementById("cueMoveToModalSubmit"),
+            cueMoveToModalCancel: document.getElementById("cueMoveToModalCancel"),
+            cueNameModal: document.getElementById("cueNameModal"),
+            cueNameModalHeader: document.getElementById("cueNameModalHeader"),
+            cueNewName: document.getElementById("cueNewName"),
+            cueNameModalSubmit: document.getElementById("cueNameModalSubmit"),
+            cueNameModalCancel: document.getElementById("cueNameModalCancel"),
+            toast: document.getElementById("toast"),
+            toastHeader: document.getElementById("toastHeader"),
+            toastBody: document.getElementById("toastBody")
         }
+
+        function showToast(title, body) {
+            Elms.toastHeader.textContent = title;
+            Elms.toastBody.textContent = body;
+            Elms.toast.classList.add("show");
+            setTimeout(() => {
+                Elms.toast.classList.remove("show");
+            }, 3400);
+        }
+
         placeCues();
+
         Elms.actionType.addEventListener("change", () => {
             console.log(Elms.actionType.value);
             /*
@@ -583,6 +602,7 @@
             }
         });
 
+        let createActionModal = null;
         function openCreateActionModal() {
             Elms.actionModalHeader.textContent = "Create Action";
             populateActionModal({//default action
@@ -675,11 +695,11 @@
                 Elms.actionType.value = options.type;
                 triggerChange(Elms.actionType);
             }
-            
+
             if (options.trigger && options.trigger.id !== undefined) {
                 Elms.triggerName.value = options.trigger.id;
             }
-            
+
             if (options.display) {
                 if (options.display.id !== undefined) Elms.selectDisplay.value = options.display.id;
                 if (options.display.action !== undefined) Elms.selectDisplayAction.value = options.display.action;
@@ -694,7 +714,7 @@
                 if (options.display.transition !== undefined) Elms.selectDisplayTransition.value = options.display.transition;
                 if (options.display.durration !== undefined) Elms.displayTransitionDurration.value = options.display.durration;
             }
-            
+
             if (options.eos) {
                 if (options.eos.id !== undefined) Elms.selectEOS.value = options.eos.id;
                 if (options.eos.action !== undefined) Elms.selectEOSAction.value = options.eos.action;
@@ -707,7 +727,7 @@
                 if (options.eos.submasterAction !== undefined) Elms.selectSubmasterAction.value = options.eos.submasterAction;
                 if (options.eos.preset !== undefined) Elms.EOSPresetNumber.value = options.eos.preset;
             }
-            
+
             if (options.wled) {
                 if (options.wled.id !== undefined) Elms.selectWLED.value = options.wled.id;
                 if (options.wled.action !== undefined) Elms.selectWLEDAction.value = options.wled.action;
@@ -727,44 +747,217 @@
         }
 
         function placeCues() {
-            let current = Cues.head;
-            Elms.cueList.textContent = "";
-            while(current) {
-                const cueElm = document.createElement("div");
-                cueElm.classList.add("cue");
-                const cueInfoElm = document.createElement("span");
-                cueInfoElm.classList.add("cue-info");
-                cueInfoElm.textContent = `${current.position} - ${current.name || ""}`;
-                cueElm.appendChild(cueInfoElm);
-                const cueActionsElm = document.createElement("div");
-                cueActionsElm.classList.add("actions");
-                cueElm.addEventListener("click", ()=>{
-                    if(cueActionsElm.style.display === "none") {
-                        cueActionsElm.style.display = "block";
-                    } else {
-                        cueActionsElm.style.display = "none";
+            api.invoke("cues:getCues").then((cues) => {
+                Elms.cueList.textContent = "";
+                cues.forEach((cue) => {
+                    Elms.cueList.appendChild(createCueElm(cue));
+                })
+            })
+        }
+
+        function createCueElm(cue) {
+            const cueElm = document.createElement("div");
+            cueElm.id = "cue#" + cue.id;
+            cueElm.classList.add("cue");
+
+            const cueInfoElm = document.createElement("span");
+            cueInfoElm.classList.add("cue-info");
+            cueInfoElm.textContent = `${cue.position} - ${cue.name || ""}`;
+            cueElm.appendChild(cueInfoElm);
+
+            const cueActionsElm = document.createElement("div");
+            cueActionsElm.classList.add("hidden");
+            cueActionsElm.id = "cueA#" + cue.id;
+            cueActionsElm.classList.add("actions");
+
+            cue.actions.forEach(action => {
+                if (!action) return;
+
+                cueActionsElm.appendChild(createCueActionElm(cue.id, action));
+            });
+            cueElm.appendChild(cueActionsElm);
+
+
+            cueElm.addEventListener("click", () => {
+                cueActionsElm.classList.toggle("hidden");
+            });
+            cueElm.addEventListener("contextmenu", e => {
+                //make sure clicked on element doesn't have the "action" class
+                let element = e.target;
+                while(element) {
+                    if(element.classList.contains("action")) return;
+                    element = element.parentElement;
+                }
+                e.preventDefault();
+                api.emit("show-context-menu", { type: "cue", id: cue.id });
+            });
+            return cueElm;
+        }
+        function createCueActionElm(cueID, action) {
+            const cueActionElm = document.createElement("div");
+            cueActionElm.classList.add("action");
+
+            const cueActionNameElm = document.createElement("span");
+            cueActionNameElm.classList.add("action-name");
+            cueActionElm.appendChild(cueActionNameElm);
+            cueActionElm.addEventListener("contextmenu", e => {
+                e.preventDefault();
+                api.emit("show-context-menu", { type: "action", id: action.id, cueID: cueID });
+            });
+            api.invoke("actions:getAction", action).then((action) => {
+                let name = `${action.id} - ${action.type}`;
+                switch (action.options.type) {
+                    case ("trigger"): {
+                        name = `Trigger ${action.options.trigger.id}`
+                        break;
                     }
-                });
-                current.actions.forEach(action => {
-                    const cueActionElm = document.createElement("div");
-                    cueActionElm.classList.add("action");
-                    const cueActionNameElm = document.createElement("span");
-                    cueActionNameElm.classList.add("action-name");
-                    cueActionNameElm.textContent = `${action.id} - ${action.type}`
-                    cueActionsElm.appendChild(cueActionElm);
-                });
-                cueElm.appendChild(cueActionsElm);
-                current = current.prev;
-            }
+                    case ("display"): {
+                        name = `${({
+                            "cut": "Cut",
+                            "fade": "Fade",
+                            "slideUp": "Slide Up",
+                            "slideDown": "Slide Down",
+                            "slideLeft": "Slide Left",
+                            "slideRight": "Slide Right",
+                            "wipeUp": "Wipe Up",
+                            "wipeDown": "Wipe Down",
+                            "wipeLeft": "Wipe Left",
+                            "wipeRight": "Wipe Right",
+                            "dipToBlack": "Dip To Black",
+                            "dipToWhite": "Dip To White",
+                            "Iris": "Iris",
+                            "zoomIn": "Zoom In",
+                            "rippleFade": "Ripple Fade",
+                        })[action.options.display.transition]} To ${action.options.action === 'file' ?
+                            `File ${action.options.display.file}` :
+                            `Playlist ${action.options.playlist}`}`
+                        break;
+                    }
+                    case ("eos"): {
+                        switch (action.options.eos.action) {
+                            case ("nextCue"): {
+                                name = "EOS Next Cue";
+                                break;
+                            }
+                            case ("gotoCue"): {
+                                name = "EOS Goto Cue " + action.options.eos.cue;
+                                break;
+                            }
+                            case ("prevCue"): {
+                                name = "EOS Prev CUe";
+                                break;
+                            }
+                            case ("submaster"): {
+                                name = "EOS Submaster";
+                                break;
+                            }
+                            case ("recallPreset"): {
+                                name = "EOS Recall Preset";
+                                break;
+                            }
+                            case ("buttonPress"): {
+                                name = "EOS Press Button";
+                                break;
+                            }
+                            case ("OSC"): {
+                                name = "EOS Custom OSC Message";
+                                break;
+                            }
+                        }
+                    }
+                }
+                cueActionNameElm.textContent = name;
+            })
+            return cueActionElm;
         }
 
         function triggerChange(elm) {
-            elm.dispatchEvent(new Event("change"))
+            elm.dispatchEvent(new Event("change"));
         }
 
-        function closeModal() {
+        Elms.newCueButton.addEventListener("click", () => {
+            api.emit("cues:createNew");
+        });
+
+        api.on("cues:addedCue", (cue, prevCue) => {
+            console.log("Added Cue")
+            if (prevCue) {
+                let prevCueElm = document.getElementById("cue#" + prevCue);
+                if (prevCueElm) {
+                    prevCueElm.insertAdjacentElement('afterend', createCueElm(cue));
+                } else {
+                    placeCues();
+                    return;
+                }
+            } else {
+                placeCues();
+            }
+        })
+        api.on("cues:deletedCue", (id) => {
+            console.log("DELETE CUE ", id)
+            let cueElm = document.getElementById("cue#" + id);
+            if (cueElm) cueElm.remove();
+        })
+
+        let cueNameModal = null;
+        api.on("cuectx:name", (id, name, position) => {
+            cueNameModal = id;
+            Elms.cueNameModalHeader.textContent = `Name Cue ${position}`;
+            Elms.cueNameModal.showModal();
+        });
+        Elms.cueNameModalSubmit.addEventListener("click", () => {
+            Elms.cueNameModal.close();
+            api.emit("cues:nameCue", cueNameModal, Elms.cueNewName.value);
+        });
+        Elms.cueNameModalCancel.addEventListener("click", () => {
+            Elms.cueNameModal.close();
+        });
+        api.on("cues:cueNamed", (id, newName) => {
+            placeCues();
+        })
+
+        let cueMoveToModal = null;
+        api.on("cuectx:moveTo", (id, position) => {
+            cueMoveToModal = id;
+            Elms.cueMoveToModalHeader.textContent = `Reposition Cue ${position}`;
+            Elms.cueMoveToModal.showModal();
+        });
+        Elms.cueMoveToModalSubmit.addEventListener("click", () => {
+            Elms.cueMoveToModal.close();
+            api.emit("cues:moveCue", cueMoveToModal, Elms.cueMoveToNewPosition.value);
+        });
+        Elms.cueMoveToModalCancel.addEventListener("click", () => {
+            Elms.cueMoveToModal.close();
+        });
+        api.on("cues:alreadyCueAtPos", (id, newPosition) => {
+            console.log("Couldn't Move Cue - There is already a cue at the postion.");
+            showToast("Couldn't Move Cue.", "There is already a cue at that position!");
+        });
+
+        api.on("cues:cueMoved", (id, prevCue) => {
+            placeCues();
+        });
+
+        api.on("cuectx:newAction", (id) => {
+            createActionModal = id;
+            openCreateActionModal();
+        })
+        Elms.createActionButton.addEventListener("click", () => {
+            const options = collectActionModal();
+            api.emit("cues:createAction", createActionModal, options);
+        })
+        Elms.closeActionModal.addEventListener("click", () => {
             Elms.actionModal.close();
-        }
+        })
+        api.on("cues:actionCreated", (id, action) => {
+            Elms.actionModal.close();
+            let actionsElm = document.getElementById("cueA#" + id);
+            if (actionsElm) {
+                actionsElm.appendChild(createCueActionElm(id, action));
+            } else {
+                placeCues();
+            }
+        })
 
         function displayTriggers() {
 

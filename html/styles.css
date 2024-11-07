@@ -19,13 +19,20 @@ body {
 }
 
 .container {
-    max-width: 800px; /* Adjust size as needed */
-    margin: 50px auto; /* Center the container */
-    padding: 20px; /* Inner spacing */
-    background-color: #fff; /* Background color */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slight shadow for floating effect */
-    border-radius: 8px; /* Rounded corners */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+    max-width: 800px;
+    /* Adjust size as needed */
+    margin: 50px auto;
+    /* Center the container */
+    padding: 20px;
+    /* Inner spacing */
+    background-color: #fff;
+    /* Background color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Slight shadow for floating effect */
+    border-radius: 8px;
+    /* Rounded corners */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Smooth transition */
 }
 
 .top-bar {
@@ -47,7 +54,7 @@ body {
 .cue-actions button {
     width: 6em;
     height: 3em;
-    font-size:larger;
+    font-size: larger;
     transition: all;
     transition-duration: .3s;
 }
@@ -57,21 +64,26 @@ body {
     border: none;
     border-radius: 5px;
 }
+
 .next-cue-button:hover {
     background-color: #39e941;
 }
+
 .next-cue-button:active {
     background-color: #29a530;
     transition-duration: 0.1s;
 }
+
 .prev-cue-button {
     background-color: rgb(177, 177, 177);
     border: none;
     border-radius: 5px;
 }
+
 .prev-cue-button:hover {
     background-color: rgb(138, 138, 138);
 }
+
 .prev-cue-button:active {
     background-color: rgb(83, 83, 83);
     transition-duration: 0.1s;
@@ -85,9 +97,11 @@ body {
     border-radius: 3px;
     cursor: pointer;
 }
+
 .cue-list-options input[type="button"]:hover {
     background-color: #45a049;
 }
+
 .cue-list-options input[type="button"]:active {
     background-color: #1b601e;
 }
@@ -158,6 +172,7 @@ body {
 .action-btn:hover {
     background-color: #45a049;
 }
+
 .action-btn:active {
     background-color: #1b601e;
 }
@@ -167,9 +182,11 @@ body {
     display: flex !important;
     align-items: center;
 }
+
 .color-input span {
     margin-right: 8px;
 }
+
 .color-input input {
     width: 4em !important;
     height: 3em;
@@ -180,6 +197,7 @@ body {
     position: absolute;
     opacity: 0;
 }
+
 .custom-checkbox .checkmark {
     display: inline-block;
     width: 20px;
@@ -190,10 +208,12 @@ body {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+
 .custom-checkbox input[type="checkbox"]:checked+.checkmark {
     background-color: #4CAF50;
     border-color: #4CAF50;
 }
+
 .custom-checkbox input[type="checkbox"]:checked+.checkmark::after {
     content: '';
     position: absolute;
@@ -205,18 +225,22 @@ body {
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
 }
+
 .custom-checkbox {
     margin: 20px 0px !important;
     display: flex !important;
     align-items: center;
 }
+
 .checkbox-label {
     margin-right: 8px;
     /* Space between the label and checkbox */
 }
+
 .custom-checkbox .checkmark:hover {
     background-color: #f0f0f0;
 }
+
 .create-action-checkbox {
     width: min-content !important;
 }
@@ -231,8 +255,9 @@ body {
     padding: 10px;
     margin-bottom: 5px;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    align-items: center;
+    align-items: left;
     cursor: pointer;
 }
 
@@ -251,8 +276,7 @@ body {
 }
 
 .actions {
-    display: none;
-    margin-left: 20px;
+    margin-top: 10px;
 }
 
 .action {
@@ -260,9 +284,6 @@ body {
     border: 1px solid #ccc;
     padding: 5px;
     margin-bottom: 3px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 .action-buttons {
@@ -279,4 +300,50 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+/* Toast styles */
+.toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    position: fixed;
+    z-index: 1000;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 16px;
+    font-size: 17px;
+}
+
+.toast.show {
+    visibility: visible;
+    animation: fadein 0.5s, fadeout 0.5s 3s;
+}
+
+@keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
 }

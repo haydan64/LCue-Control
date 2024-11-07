@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const { app, screen, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 const db = require("./db");
 const axios = require('axios'); // Import axios for HTTP requests
@@ -18,6 +18,28 @@ const { Actions } = require("./Actions.js");
 const { Triggers } = require("./Actions.js");
 const Devices = require("./Devices.js");
 
+
+function isPositionWithinBounds(x, y, width, height, tolerance = 10) {
+    const displays = screen.getAllDisplays();
+    for (let display of displays) {
+        const bounds = display.bounds;
+        console.log(
+            x >= bounds.x - tolerance,
+            y >= bounds.y - tolerance,
+            x + width <= bounds.x + bounds.width + tolerance,
+            y + height <= bounds.y + bounds.height + tolerance
+        );
+        if (
+            x >= bounds.x - tolerance &&
+            y >= bounds.y - tolerance &&
+            x + width <= bounds.x + bounds.width + tolerance &&
+            y + height <= bounds.y + bounds.height + tolerance
+        ) {
+            return true;
+        }
+    }
+    return false;
+}
 
 
 let http, socket;
@@ -103,6 +125,10 @@ const menuTemplate = [
 const menu = Menu.buildFromTemplate(menuTemplate);
 Menu.setApplicationMenu(menu);
 
+function createContextMenu(template) {
+    return Menu.buildFromTemplate(template);
+}
+
 
 function connectToServer(serverAddress) {
     axios.get(`http://${serverAddress}/api/healthcheck`) // Example endpoint to check server status
@@ -119,13 +145,26 @@ function connectToServer(serverAddress) {
                     version: "0",
                     id: controlerID
                 });
-                socket.on("displaysSync", (event, ...args)=>{
+                socket.on("displaysSync", (event, ...args) => {
                     Displays.emit(event, ...args)
                 })
                 //socket.emit("display", 694478262, "showFile", "Untitled.png") <== Test, I can't believe it actually worked first try!
-                socket.on("displaySync", (id, event, ...args)=>{
+                socket.on("displaySync", (id, event, ...args) => {
                     Displays.displays[id]?.emit(event, ...args);
                 });
+                Cues.on("sync", (event, ...args) => {
+                    console.log(event, ...args);
+                    socket.emit("cues", event, ...args);
+                });
+                socket.on("cuesSync", (event, ...args) => {
+                    Cues.emit(event, ...args);
+                })
+                socket.on("actionsSync", (event, ...args) => {
+                    Actions.emit(event, ...args);
+                });
+                Actions.on("sync", (event, ...args) => {
+                    socket.emit("actions", event, ...args);
+                })
                 if (db.get("serverAddress") !== serverAddress) db.set("serverAddress", serverAddress);
                 connectedToServer();
             });
@@ -185,14 +224,45 @@ function createConnectToServerWindow(serverAddress) {
 
 function createHomeWindow() {
     if (!window) {
+        let windowState = db.get("windowState");
+        if(!windowState) {
+            windowState = {
+                width: 800,
+                height: 600,
+                x: undefined,
+                y: undefined,
+                isMaximized: false,
+                isFullscren: false
+            }
+        }
+        // Check if the position is within bounds
+        if (!isPositionWithinBounds(windowState.x, windowState.y, windowState.width, windowState.height)) {
+            windowState.x = undefined;
+            windowState.y = undefined;
+        }
+        
         // Create the control window
         window = new BrowserWindow({
-            width: 800,
-            height: 600,
+            width: windowState.width,
+            height: windowState.height,
+            x: windowState.x,
+            y: windowState.y,
             webPreferences: {
                 preload: path.join(__dirname, 'mainPreload.js'),
-            },
+            }
         });
+        if(windowState.isMaximized || windowState.isFullScreen) {
+            window.once("ready-to-show", ()=>{
+                if(windowState.isMaximized) window.maximize();
+                if(windowState.isFullscreen) window.setFullScreen(true);
+            })
+        }
+        window.on("close", ()=> {
+            const windowBounds = window.getBounds();
+            const isMaximized = window.isMaximized();
+            const isFullScreen = window.isFullScreen();
+            db.set("windowState", {...windowBounds, isMaximized, isFullScreen});
+        })
         window.loadFile('html/home.html');
         return window;
     }
@@ -201,6 +271,87 @@ function createHomeWindow() {
     return window;
 }
 
+ipcMain.on('show-context-menu', (event, options)=> {
+    let template;
+    if(!options.type) return;
+    console.log("Context Menu Opened")
+    switch(options.type) {
+        case("cue"): {
+            template = [
+                {label: "Goto", click: ()=>{
+
+                }},
+                {label: "Name", click: ()=>{
+                    event.sender.send('cuectx:name', options.id, Cues.cues[options.id]?.name, Cues.cues[options.id]?.position);
+                }},
+                {label: "Move To", click: ()=>{
+                    event.sender.send('cuectx:moveTo', options.id, Cues.cues[options.id]?.position);
+                }},
+                {label: "Copy To", click: ()=>{
+                    event.sender.send('cuectx:copyTo', options.id);
+                }},
+                {label: "Delete", click: ()=>{
+                    Cues.deleteCue(options.id)}
+                },
+                {label: "New Action", click: ()=>{
+                    event.sender.send('cuectx:newAction', options.id);
+                }},
+                {label: "Paste Action", click: ()=>{
+                    event.sender.send('cuectx:pasteAction', options.id);
+                }},
+            ]
+            break;
+        }
+        case("action"): {
+            template = [
+                {label: "Run Action", click: ()=>{
+                    Actions.triggerAction(options.id)
+                }},
+                {label: "Edit Action", click: ()=>{
+                    event.sender.send('actionctx:edit', options.id);
+                }},
+                {label: "Copy Action", click: ()=>{
+                    event.sender.send('actionctx:copyTo', options.id);
+                }},
+                {label: "Delete Action", click: ()=>{
+                    Cues.deleteCue(options.id)}
+                }
+            ]
+            break;
+        }
+    }
+    const menu = createContextMenu(template);
+    menu.popup(BrowserWindow.fromWebContents(event.sender));
+});
+function emitWindow(event, ...args) {
+    if(window && window.webContents) {
+        console.log(event, args);
+        window.webContents.send(event, ...args);
+    }
+}
+
+ipcMain.on("cues:nameCue", (event, id, newName) => {
+    Cues.nameCue(id, newName);
+});
+ipcMain.on("cues:createNew", () => {
+    Cues.newCue();
+});
+ipcMain.on("cues:moveCue", (event, id, newPosition) => {
+    Cues.moveCue(id, newPosition);
+});
+ipcMain.on("cues:createAction", (event, id, options)=> {
+    Cues.createAction(id, options);
+});
+ipcMain.handle("cues:getCues", () => {
+    console.log(Cues.getCues(true));
+    return Cues.getCues(true);
+});
+ipcMain.handle("actions:getAction", (event, action) => {
+    return Actions.actions[action];
+});
+Cues.on("show", (event, ...args)=> {
+    emitWindow("cues:" + event, ...args);
+});
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
