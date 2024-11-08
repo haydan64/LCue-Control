@@ -308,18 +308,17 @@
         <button id="cueMoveToModalCancel" class="modal-close-btn">Cancel</button>
     </dialog>
     <!-- Select Icon Modal -->
-    <div id="iconModal" class="modal">
-        <div class="modal-content"> <span class="close">&times;</span>
-            <h2>Select an Icon</h2>
-            <div id="iconList" class="icon-list"> <!-- Icons will be dynamically inserted here --> </div>
-        </div>
-    </div>
+    <dialog id="iconModal" class="modal">
+        <h2>Select an Icon</h2>
+        <div id="iconList" class="icon-list"></div>
+        <button id="cueMoveToModalCancel" class="modal-close-btn" onclick="Elms.iconModal.close()">Cancel</button>
+    </dialog>
     <div id="toast" class="toast">
         <h2 id="toastHeader"></h2>
         <p id="toastBody"></p>
     </div>
 
-    <script src="cues.html"></script>
+    <script src="icons.js"></script>
     <script>
         const Elms = {
             nav: document.getElementById("nav"),
@@ -392,6 +391,7 @@
             cueNameModalSubmit: document.getElementById("cueNameModalSubmit"),
             cueNameModalCancel: document.getElementById("cueNameModalCancel"),
             editActionButton: document.getElementById("editActionButton"),
+            iconModal: document.getElementById("iconModal"),
             iconList: document.getElementById("iconList"),
             toast: document.getElementById("toast"),
             toastHeader: document.getElementById("toastHeader"),
@@ -963,7 +963,10 @@
             let cueElm = document.getElementById("cue#" + id);
             if (cueElm) cueElm.remove();
         })
-
+        api.on("actions:deletedAction", (id) => {
+            let actionElm = document.getElementById("action#");
+            if (actionElm) actionElm.remove();
+        })
         let cueNameModal = null;
         api.on("cuectx:name", (id, name, position) => {
             cueNameModal = id;
@@ -1042,16 +1045,66 @@
             }
         })
 
-        function displayTriggers() {
+        function updateTrigger(trigger) {
+            if (!trigger.id) {
+                console.error('Trigger must have an id.');
+                return;
+            }
 
+            let triggerElement = document.getElementById("t#" + trigger.id);
+
+            if (!triggerElement) {
+                // Create a new trigger button
+                triggerElement = document.createElement('button');
+                triggerElement.id = "t#" + trigger.id;
+                triggerElement.classList.add('trigger-button');
+                Elms.triggerList.appendChild(triggerElement);
+                triggerElement.addEventListener('click', () => {
+                    socket.emit('triggered', trigger.id); // Emit the 'triggered' event with the trigger ID
+                });
+            }
+
+            // Update trigger properties
+            if (trigger.name) {
+                triggerElement.textContent = trigger.name;
+            }
+            if (trigger.color) {
+                triggerElement.style.backgroundColor = trigger.color;
+                // Set text color to black if background is bright, otherwise set to white
+                triggerElement.style.color = isBrightColor(trigger.color) ? 'black' : 'white';
+            }
+            if (trigger.icon) {
+                let iconElement = triggerElement.querySelector('.trigger-icon');
+                if (!iconElement) {
+                    iconElement = document.createElement('i');
+                    iconElement.classList.add('trigger-icon');
+                    triggerElement.prepend(iconElement);
+                }
+                iconElement.className = `trigger-icon ${trigger.icon}`; // Update Font Awesome icon class
+            }
+        }
+        function displayTriggers() {
+            api.invoke("triggers:getTriggers").then((triggers) => {
+                Elms.triggerList.textContent = "";
+                triggers.forEach((trigger) => {
+                    updateTrigger(trigger);
+                })
+            })
         }
 
-        icons.forEach(iconClass => {
+        api.on("triggers:addedTrigger", (trigger) => {
+            updateTrigger(trigger);
+        })
+
+        window.Icons.forEach(iconClass => {
             const iconItem = document.createElement('i');
-            iconItem.className = `icon-item ${iconClass}`;
+            iconItem.classList.add("fa-solid", iconClass)
             iconItem.addEventListener('click', () => selectIcon(iconClass));
-            Elm.iconList.appendChild(iconItem);
+            Elms.iconList.appendChild(iconItem);
         });
+        function selectIcon(iconClass) {
+
+        }
     </script>
 </body>
 

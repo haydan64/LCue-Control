@@ -18,12 +18,19 @@ class Actions extends EventEmitter {
             this.actions[id].type = options.type;
             this.emit("show", "actionEdited", id, options);
         });
+        this.on("actionDeleted", (id)=>{
+            delete this.actions[id];
+            this.emit("show", "deletedAction", id)
+        })
     }
     editAction(id, options) {
         this.emit("sync", "editAction", id, options);
     }
     triggerAction(action) {
         this.emit("sync", "triggerAction", action);
+    }
+    deleteAction(actionID) {
+        this.emit("sync", "deleteAction", actionID);
     }
     getActions() {
         return this.actions;

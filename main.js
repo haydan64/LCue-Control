@@ -165,9 +165,15 @@ function connectToServer(serverAddress) {
                 Cues.on("sync", (event, ...args) => {
                     socket.emit("cues", event, ...args);
                 });
+                Triggers.on("sync", (event, ...args) => {
+                    socket.emit("triggers", event, ...args);
+                });
                 socket.on("cuesSync", (event, ...args) => {
                     Cues.emit(event, ...args);
                 })
+                socket.on("triggersSync", (event, ...args) => {
+                    Triggers.emit(event, ...args);
+                });
                 socket.on("actionsSync", (event, ...args) => {
                     Actions.emit(event, ...args);
                 });
@@ -310,6 +316,29 @@ ipcMain.on('show-context-menu', (event, options)=> {
             ]
             break;
         }
+        case("trigger"): {
+            template = [
+                {label: "Trigger", click: ()=>{
+                    Trigger.triggerTrigger(options.id)
+                }},
+                {label: "Name", click: ()=>{
+                    event.sender.send('triggerctx:name', options.id, Triggers.triggers[options.id]?.toJSON());
+                }},
+                {label: "Duplicate", click: ()=>{
+                    
+                }},
+                {label: "Delete", click: ()=>{
+                    Triggers.deleteTrigger(options.id)}
+                },
+                {label: "New Action", click: ()=>{
+                    event.sender.send('triggerctx:newAction', options.id);
+                }},
+                {label: "Paste Action", click: ()=>{
+                    event.sender.send('triggerctx:pasteAction', options.id);
+                }}
+            ]
+            break;
+        }
         case("action"): {
             template = [
                 {label: "Run Action", click: ()=>{
@@ -322,7 +351,7 @@ ipcMain.on('show-context-menu', (event, options)=> {
                     event.sender.send('actionctx:copy', options.id);
                 }},
                 {label: "Delete Action", click: ()=>{
-                    Cues.deleteCue(options.id)}
+                    Actions.deleteAction(options.id)}
                 }
             ]
             break;
@@ -330,7 +359,7 @@ ipcMain.on('show-context-menu', (event, options)=> {
         case("triggerBox"): {
             template = [
                 {label: "New Trigger", click: ()=>{
-                    Tiggers.triggerAction(options.id)
+                    Triggers.newTrigger(options.id)
                 }}
             ]
             break;
@@ -362,6 +391,9 @@ ipcMain.on("cues:editAction", (event, id, options)=> {
 });
 ipcMain.handle("cues:getCues", () => {
     return Cues.getCues(true);
+});
+ipcMain.handle("triggers:getTriggers", () => {
+    return Triggers.getTriggers();
 });
 ipcMain.handle("actions:getAction", (event, action) => {
     return Actions.actions[action];

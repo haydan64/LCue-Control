@@ -41,7 +41,7 @@ class Triggers extends EventEmitter {
         this.on("triggerAdded", (trigger) => {
             console.log("trigger added")
             this.triggers[trigger.id] = new Trigger(trigger.id, trigger.column, trigger.row, trigger.color, trigger.icon, trigger.name, trigger.actions);
-            this.emit("show", "addedTrigger", trigger, this.triggers[trigger.id].prev?.id);
+            this.emit("show", "addedTrigger", trigger.toJSON());
         });
         this.on("triggerDeleted", (id) => {
             if (!this.triggers[id]) return;
@@ -60,6 +60,7 @@ class Triggers extends EventEmitter {
         });
         this.on("setTriggers", (triggerList) => {
             triggerList.forEach(trigger => {
+                console.log(trigger);
                 this.triggers[trigger.id] = new Trigger(trigger.id, trigger.column, trigger.row, trigger.color, trigger.icon, trigger.name, trigger.actions);
             });
             this.emit("show", "setTriggers", triggerList);
