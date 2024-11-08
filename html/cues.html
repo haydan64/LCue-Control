@@ -307,11 +307,19 @@
         <button id="cueMoveToModalSubmit" class="modal-close-btn">Move</button>
         <button id="cueMoveToModalCancel" class="modal-close-btn">Cancel</button>
     </dialog>
+    <!-- Select Icon Modal -->
+    <div id="iconModal" class="modal">
+        <div class="modal-content"> <span class="close">&times;</span>
+            <h2>Select an Icon</h2>
+            <div id="iconList" class="icon-list"> <!-- Icons will be dynamically inserted here --> </div>
+        </div>
+    </div>
     <div id="toast" class="toast">
         <h2 id="toastHeader"></h2>
         <p id="toastBody"></p>
     </div>
 
+    <script src="cues.html"></script>
     <script>
         const Elms = {
             nav: document.getElementById("nav"),
@@ -384,6 +392,7 @@
             cueNameModalSubmit: document.getElementById("cueNameModalSubmit"),
             cueNameModalCancel: document.getElementById("cueNameModalCancel"),
             editActionButton: document.getElementById("editActionButton"),
+            iconList: document.getElementById("iconList"),
             toast: document.getElementById("toast"),
             toastHeader: document.getElementById("toastHeader"),
             toastBody: document.getElementById("toastBody")
@@ -398,7 +407,7 @@
             }, 3400);
         }
 
-        Elms.topBar.addEventListener("contextmenu", (e)=>{
+        Elms.topBar.addEventListener("contextmenu", (e) => {
             e.preventDefault();
             api.emit("show-context-menu", { type: "triggerBox" });
         })
@@ -477,7 +486,7 @@
         })
         Elms.selectDisplay.addEventListener("change", () => {
             api.invoke("displays:getDisplay", Elms.selectDisplay.value).then((display) => {
-                Elms.selectDisplayFile.textContent="";
+                Elms.selectDisplayFile.textContent = "";
                 display.files.forEach((file) => {
                     const option = document.createElement("option");
                     option.value = file;
@@ -1037,6 +1046,12 @@
 
         }
 
+        icons.forEach(iconClass => {
+            const iconItem = document.createElement('i');
+            iconItem.className = `icon-item ${iconClass}`;
+            iconItem.addEventListener('click', () => selectIcon(iconClass));
+            Elm.iconList.appendChild(iconItem);
+        });
     </script>
 </body>
 

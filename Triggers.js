@@ -72,7 +72,7 @@ class Triggers extends EventEmitter {
         this.emit("sync", "createNewTrigger");
     }
     deleteTrigger(id) {
-        this.emit("sync", "deleteTrigger", id)
+        this.emit("sync", "deleteTrigger", id);
     }
     nameTrigger(id, newName) {
         this.emit("sync", "nameTrigger", id, newName);

@@ -35,6 +35,23 @@ body {
     /* Smooth transition */
 }
 
+.icon-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.icon-item {
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.icon-item:hover {
+    transform: scale(1.2);
+}
+
 .top-bar {
     background-color: #333;
     display: flex;

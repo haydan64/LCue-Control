@@ -1,3 +1,19 @@
+const fs = require("fs");
+if(!fs.existsSync("PreventUpdate")) update:{
+    console.log("AUTO UPDATE ENABLED");
+
+    const AutoGitUpdate = require('auto-git-update');
+    const config = {
+        repository: 'https://github.com/haydan64/LCue-Server.git',
+        tempLocation: './temp',
+        executeOnComplete: 'npm start', // Command to restart your app
+        exitOnComplete: true
+    };
+    
+    const updater = new AutoGitUpdate(config);
+    updater.autoUpdate();
+}
+
 const { app, screen, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 const db = require("./db");
