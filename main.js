@@ -1,5 +1,5 @@
 const fs = require("fs");
-if(!fs.existsSync("PreventUpdate")) update:{
+if(false) update:{
     console.log("AUTO UPDATE ENABLED");
 
     const AutoGitUpdate = require('auto-git-update');
