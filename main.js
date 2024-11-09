@@ -263,7 +263,9 @@ function createHomeWindow() {
             x: windowState.x,
             y: windowState.y,
             webPreferences: {
-                preload: path.join(__dirname, 'mainPreload.js'),
+                //preload: path.join(__dirname, 'mainPreload.js'),
+                nodeIntegration: true,
+                contextIsolation: false
             }
         });
         if(windowState.isMaximized || windowState.isFullScreen) {
@@ -319,22 +321,28 @@ ipcMain.on('show-context-menu', (event, options)=> {
         case("trigger"): {
             template = [
                 {label: "Trigger", click: ()=>{
-                    Trigger.triggerTrigger(options.id)
+                    Triggers.triggerTrigger(options.trigger.id);
                 }},
-                {label: "Name", click: ()=>{
-                    event.sender.send('triggerctx:name', options.id, Triggers.triggers[options.id]?.toJSON());
+                {label: "Edit", click: ()=>{
+                    const triggerActions = Triggers.triggers[options.trigger.id].actions.map((action)=>{
+                        return Actions.actions[action];
+                    });
+                    event.sender.send('triggerctx:edit', Triggers.triggers[options.trigger.id]?.toJSON(), triggerActions);
+                }},
+                {label: "View Actions", click: ()=>{
+                    const triggerActions = Triggers.triggers[options.trigger.id].actions.map((action)=>{
+                        return Actions.actions[action];
+                    });
+                    event.sender.send('triggerctx:viewActions', Triggers.triggers[options.trigger.id]?.toJSON(), triggerActions);
                 }},
                 {label: "Duplicate", click: ()=>{
                     
                 }},
                 {label: "Delete", click: ()=>{
-                    Triggers.deleteTrigger(options.id)}
+                    Triggers.deleteTrigger(options.trigger.id)}
                 },
-                {label: "New Action", click: ()=>{
-                    event.sender.send('triggerctx:newAction', options.id);
-                }},
                 {label: "Paste Action", click: ()=>{
-                    event.sender.send('triggerctx:pasteAction', options.id);
+                    event.sender.send('triggerctx:pasteAction', options.trigger.id);
                 }}
             ]
             break;
@@ -346,6 +354,23 @@ ipcMain.on('show-context-menu', (event, options)=> {
                 }},
                 {label: "Edit Action", click: ()=>{
                     event.sender.send('actionctx:edit', options.id, options.cueID, Actions.actions[options.id]?.options);
+                }},
+                {label: "Copy Action", click: ()=>{
+                    event.sender.send('actionctx:copy', options.id);
+                }},
+                {label: "Delete Action", click: ()=>{
+                    Actions.deleteAction(options.id)}
+                }
+            ]
+            break;
+        }
+        case("actionInTrigger"): {
+            template = [
+                {label: "Run Action", click: ()=>{
+                    Actions.triggerAction(options.id)
+                }},
+                {label: "Edit Action", click: ()=>{
+                    event.sender.send('actionctx:edit', options.action.id, null, Actions.actions[options.action.id]?.options);
                 }},
                 {label: "Copy Action", click: ()=>{
                     event.sender.send('actionctx:copy', options.id);
@@ -389,6 +414,12 @@ ipcMain.on("cues:createAction", (event, id, options)=> {
 ipcMain.on("cues:editAction", (event, id, options)=> {
     Actions.editAction(id, options);
 });
+ipcMain.on("triggers:createAction", (event, id, options)=> {
+    Triggers.createAction(id, options);
+});
+ipcMain.on("triggers:triggered", (event, id)=> {
+    Triggers.triggerTrigger(id);
+});
 ipcMain.handle("cues:getCues", () => {
     return Cues.getCues(true);
 });
@@ -400,7 +431,7 @@ ipcMain.handle("actions:getAction", (event, action) => {
 });
 ipcMain.handle("displays:getDisplay", (event, id) => {
     console.log(id, Displays.displays);
-    return {files:Displays.displays[id].files, playlists:Displays.displays[id].playlists};
+    return {files:Displays.displays[id]?.files || [], playlists:Displays.displays[id]?.playlists || []};
 });
 ipcMain.handle("getDevicesAndDisplays", (event) => {
     return {
@@ -413,6 +444,9 @@ Cues.on("show", (event, ...args)=> {
 });
 Actions.on("show", (event, ...args)=> {
     emitWindow("actions:" + event, ...args);
+});
+Triggers.on("show", (event, ...args)=> {
+    emitWindow("triggers:" + event, ...args);
 });
 
 app.on('window-all-closed', () => {

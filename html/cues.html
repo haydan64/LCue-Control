@@ -269,7 +269,6 @@
                     <label for="WLEDPresetNumber">Preset:</label>
                     <input type="number" id="WLEDPresetNumber">
                 </div>
-
             </div>
 
             <!--OSC Options-->
@@ -287,8 +286,44 @@
         <button id="closeActionModal" class="modal-close-btn">Close</button>
     </dialog>
 
+    <dialog class="modal" id="editTriggerModal">
+        <h2>Edit Trigger</h2>
+
+        <!--Edit Trigger Name-->
+        <label for="editTriggerName">Trigger Name:</label>
+        <input type="text" id="editTriggerName">
+
+        <!--Edit Trigger icon-->
+        <label for="editTriggerIcon">
+            <i class="fa-solid fa-caret-down fa-rotate-180" style="margin-right: 0.3em;"></i>Trigger Icon:
+        </label>
+        <div id="editTriggerIcon">
+            <div id="iconList" class="icon-list"></div>
+        </div>
+
+        <!--Edit Trigger color-->
+        <label class="color-input" for="editTriggerColor">
+            <span>Trigger Color:</span>
+            <input type="color" id="editTriggerColor">
+        </label>
+
+
+        <button id="editTriggerModalSubmit" class="modal-close-btn">Save Edits</button>
+        <button id="editTriggerModalCancel" class="modal-close-btn">Cancel</button>
+    </dialog>
+    <dialog class="modal" id="triggerActionsModal">
+        <h2>Trigger Actions</h2>
+
+        <!--Edit Trigger Actions-->
+        <label for="triggerActionsList">Actions:</label>
+        <div id="triggerActionsList" class="trigger-actions"></div>
+        <button id="triggerNewAction" class="modal-close-btn">New Action</button><br><br>
+
+        <button id="triggerActionsClose" class="modal-close-btn">Close</button>
+    </dialog>
+
     <dialog class="modal" id="cueNameModal">
-        <h2 id="cueNameModalHeader">Move Cue To</h2>
+        <h2 id="cueNameModalHeader">Name Cue</h2>
 
         <!--The position for which to move the cue to-->
         <label for="cueNewName" value="1">Name:</label>
@@ -307,19 +342,16 @@
         <button id="cueMoveToModalSubmit" class="modal-close-btn">Move</button>
         <button id="cueMoveToModalCancel" class="modal-close-btn">Cancel</button>
     </dialog>
-    <!-- Select Icon Modal -->
-    <dialog id="iconModal" class="modal">
-        <h2>Select an Icon</h2>
-        <div id="iconList" class="icon-list"></div>
-        <button id="cueMoveToModalCancel" class="modal-close-btn" onclick="Elms.iconModal.close()">Cancel</button>
-    </dialog>
     <div id="toast" class="toast">
         <h2 id="toastHeader"></h2>
         <p id="toastBody"></p>
     </div>
 
+    <script src="nameAction.js"></script>
     <script src="icons.js"></script>
     <script>
+        const { ipcRenderer } = require('electron');
+        const api = ipcRenderer;
         const Elms = {
             nav: document.getElementById("nav"),
             triggerList: document.getElementById("triggerList"),
@@ -391,12 +423,27 @@
             cueNameModalSubmit: document.getElementById("cueNameModalSubmit"),
             cueNameModalCancel: document.getElementById("cueNameModalCancel"),
             editActionButton: document.getElementById("editActionButton"),
-            iconModal: document.getElementById("iconModal"),
+
+
+            editTriggerModal: document.getElementById("editTriggerModal"),
+            editTriggerName: document.getElementById("editTriggerName"),
+            editTriggerIcon: document.getElementById("editTriggerIcon"),
+            editTriggerColor: document.getElementById("editTriggerColor"),
+            editTriggerModalSubmit: document.getElementById("editTriggerModalSubmit"),
+            editTriggerModalCancel: document.getElementById("editTriggerModalCancel"),
+
+            triggerActionsModal: document.getElementById("triggerActionsModal"),
+            triggerActionsList: document.getElementById("triggerActionsList"),
+            triggerNewAction: document.getElementById("triggerNewAction"),
+            triggerActionsClose: document.getElementById("triggerActionsClose"),
+
             iconList: document.getElementById("iconList"),
             toast: document.getElementById("toast"),
             toastHeader: document.getElementById("toastHeader"),
             toastBody: document.getElementById("toastBody")
         }
+
+
 
         function showToast(title, body) {
             Elms.toastHeader.textContent = title;
@@ -408,8 +455,15 @@
         }
 
         Elms.topBar.addEventListener("contextmenu", (e) => {
+            //make sure clicked on element doesn't have the "action" class
+            let element = e.target;
+            while (element) {
+                if (element.classList.contains("trigger-button")) return;
+                element = element.parentElement;
+            }
             e.preventDefault();
-            api.emit("show-context-menu", { type: "triggerBox" });
+            api.send("show-context-menu", { type: "triggerBox" });
+
         })
         placeCues();
 
@@ -635,6 +689,7 @@
         });
 
         let createActionModal = null;
+        let createActionModalTrigger = null;
         function openCreateActionModal() {
             Elms.actionModalHeader.textContent = "Create Action";
             populateActionModal({//default action
@@ -678,6 +733,7 @@
             Elms.actionModal.showModal();
         }
         let editActionModal = null;
+        let editActionModalTrigger = null;
         function openEditActionModal(options) {
             Elms.actionModalHeader.textContent = "Edit Action";
             Elms.createActionButton.classList.add("hidden");
@@ -850,7 +906,7 @@
                     element = element.parentElement;
                 }
                 e.preventDefault();
-                api.emit("show-context-menu", { type: "cue", id: cue.id });
+                api.send("show-context-menu", { type: "cue", id: cue.id });
             });
             return cueElm;
         }
@@ -864,78 +920,17 @@
             cueActionElm.appendChild(cueActionNameElm);
             cueActionElm.addEventListener("contextmenu", e => {
                 e.preventDefault();
-                api.emit("show-context-menu", { type: "action", id: action, cueID: cueID });
+                api.send("show-context-menu", { type: "action", id: action, cueID: cueID });
             });
             api.invoke("actions:getAction", action).then((action) => {
                 if (!action) return;
-                filloutActionElm(cueActionElm, action.id, action.options)
+                filloutActionElm(cueActionElm, action)
             });
 
             return cueActionElm;
         }
-        function filloutActionElm(cueActionElm, id, options) {
-            let name = `${id} - ${options.type}`;
-            switch (options.type) {
-                case ("trigger"): {
-                    name = `Trigger ${options.trigger.id}`
-                    break;
-                }
-                case ("display"): {
-                    name = `${({
-                        "cut": "Cut",
-                        "fade": "Fade",
-                        "slideUp": "Slide Up",
-                        "slideDown": "Slide Down",
-                        "slideLeft": "Slide Left",
-                        "slideRight": "Slide Right",
-                        "wipeUp": "Wipe Up",
-                        "wipeDown": "Wipe Down",
-                        "wipeLeft": "Wipe Left",
-                        "wipeRight": "Wipe Right",
-                        "dipToBlack": "Dip To Black",
-                        "dipToWhite": "Dip To White",
-                        "Iris": "Iris",
-                        "zoomIn": "Zoom In",
-                        "rippleFade": "Ripple Fade",
-                    })[options.display.transition]} To ${options.action === 'file' ?
-                        `File ${options.display.file}` :
-                        `Playlist ${options.playlist}`}`
-                    break;
-                }
-                case ("eos"): {
-                    switch (options.eos.action) {
-                        case ("nextCue"): {
-                            name = "EOS Next Cue";
-                            break;
-                        }
-                        case ("gotoCue"): {
-                            name = "EOS Goto Cue " + options.eos.cue;
-                            break;
-                        }
-                        case ("prevCue"): {
-                            name = "EOS Prev CUe";
-                            break;
-                        }
-                        case ("submaster"): {
-                            name = "EOS Submaster";
-                            break;
-                        }
-                        case ("recallPreset"): {
-                            name = "EOS Recall Preset";
-                            break;
-                        }
-                        case ("buttonPress"): {
-                            name = "EOS Press Button";
-                            break;
-                        }
-                        case ("OSC"): {
-                            name = "EOS Custom OSC Message";
-                            break;
-                        }
-                    }
-                }
-            }
-            cueActionElm.getElementsByClassName("action-name").item(0).textContent = name;
+        function filloutActionElm(cueActionElm, action) {
+            cueActionElm.getElementsByClassName("action-name").item(0).textContent = window.NameAction(action);
         }
 
         function triggerChange(elm) {
@@ -943,10 +938,10 @@
         }
 
         Elms.newCueButton.addEventListener("click", () => {
-            api.emit("cues:createNew");
+            api.send("cues:createNew");
         });
 
-        api.on("cues:addedCue", (cue, prevCue) => {
+        api.on("cues:addedCue", (e, cue, prevCue) => {
             if (prevCue) {
                 let prevCueElm = document.getElementById("cue#" + prevCue);
                 if (prevCueElm) {
@@ -959,92 +954,130 @@
                 placeCues();
             }
         })
-        api.on("cues:deletedCue", (id) => {
+        api.on("cues:deletedCue", (e, id) => {
             let cueElm = document.getElementById("cue#" + id);
             if (cueElm) cueElm.remove();
         })
-        api.on("actions:deletedAction", (id) => {
+        api.on("actions:deletedAction", (e, id) => {
             let actionElm = document.getElementById("action#");
             if (actionElm) actionElm.remove();
         })
         let cueNameModal = null;
-        api.on("cuectx:name", (id, name, position) => {
+        api.on("cuectx:name", (e, id, name, position) => {
             cueNameModal = id;
             Elms.cueNameModalHeader.textContent = `Name Cue ${position}`;
             Elms.cueNameModal.showModal();
         });
         Elms.cueNameModalSubmit.addEventListener("click", () => {
             Elms.cueNameModal.close();
-            api.emit("cues:nameCue", cueNameModal, Elms.cueNewName.value);
+            api.send("cues:nameCue", cueNameModal, Elms.cueNewName.value);
         });
         Elms.cueNameModalCancel.addEventListener("click", () => {
             Elms.cueNameModal.close();
         });
-        api.on("cues:cueNamed", (id, newName) => {
+        api.on("cues:cueNamed", (e, id, newName) => {
             placeCues();
         })
 
         let cueMoveToModal = null;
-        api.on("cuectx:moveTo", (id, position) => {
+        api.on("cuectx:moveTo", (e, id, position) => {
             cueMoveToModal = id;
             Elms.cueMoveToModalHeader.textContent = `Reposition Cue ${position}`;
             Elms.cueMoveToModal.showModal();
         });
         Elms.cueMoveToModalSubmit.addEventListener("click", () => {
             Elms.cueMoveToModal.close();
-            api.emit("cues:moveCue", cueMoveToModal, Elms.cueMoveToNewPosition.value);
+            api.send("cues:moveCue", cueMoveToModal, Elms.cueMoveToNewPosition.value);
         });
         Elms.cueMoveToModalCancel.addEventListener("click", () => {
             Elms.cueMoveToModal.close();
         });
-        api.on("cues:alreadyCueAtPos", (id, newPosition) => {
+        api.on("cues:alreadyCueAtPos", (e, id, newPosition) => {
             console.log("Couldn't Move Cue - There is already a cue at the postion.");
             showToast("Couldn't Move Cue.", "There is already a cue at that position!");
         });
 
-        api.on("cues:cueMoved", (id, prevCue) => {
+        api.on("cues:cueMoved", (e, id, prevCue) => {
             placeCues();
         });
 
-        api.on("cuectx:newAction", (id) => {
+        api.on("cuectx:newAction", (e, id) => {
             createActionModal = id;
+            createActionModalTrigger = null;
             openCreateActionModal();
         })
+        //Submit Create Action Modal
         Elms.createActionButton.addEventListener("click", () => {
             const options = collectActionModal();
-            api.emit("cues:createAction", createActionModal, options);
+            if (createActionModal) api.send("cues:createAction", createActionModal, options);
+            if (createActionModalTrigger) api.send("triggers:createAction", createActionModalTrigger, options);
+            createActionModal = createActionModalTrigger = null;
             Elms.actionModal.close();
         })
+        //Submit Edit Action Modal
         Elms.editActionButton.addEventListener("click", () => {
             const options = collectActionModal();
-            api.emit("cues:editAction", createActionModal, options);
+            if (createActionModal) api.send("cues:editAction", createActionModal, options);
+            if (createActionModalTrigger) api.send("triggers:editAction", createActionModalTrigger, options);
+            createActionModalTrigger = createActionModal = null;
             Elms.actionModal.close();
         })
+        //Close Create/Edit Action Modal
         Elms.closeActionModal.addEventListener("click", () => {
+            createActionModal = createActionModalTrigger = null;
+            createActionModalTrigger = createActionModal = null;
             Elms.actionModal.close();
         })
-        api.on("cues:actionCreated", (id, action) => {
+        api.on("cues:actionCreated", (e, id, action) => {
             let actionsElm = document.getElementById("cueA#" + id);
             if (actionsElm) {
                 actionsElm.appendChild(createCueActionElm(id, action));
             } else {
                 placeCues();
+                displayTriggers();
+            }
+        })
+        api.on("triggers:actionCreated", (e, id, action) => {
+            if (id === viewingTriggerID) {
+                Elms.triggerActionsList.appendChild(createTriggerActionElm(action));
             }
         })
 
-        api.on("actionctx:edit", (id, cueID, options) => {
+        api.on("actionctx:edit", (e, id, cueID, options) => {
+            console.log("Edit Action: ", id, options)
             if (!options) return;
             createActionModal = id;
             openEditActionModal(options);
         });
 
-        api.on("actions:actionEdited", (id, options) => {
+        api.on("actions:actionEdited", (e, id, options) => {
             let actionElm = document.getElementById("action#" + id);
             if (actionElm) {
                 filloutActionElm(actionElm, id, options);
             }
         })
 
+        function hexToRgb(hex) {
+            // Convert hex to RGB
+            const bigint = parseInt(hex.slice(1), 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = bigint & 255;
+            return [r, g, b];
+        }
+        function isBrightColor(hex) {
+            const [r, g, b] = hexToRgb(hex);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            return brightness > 155;
+        }
+        function createLoadingIcon() {
+            // Create the i element for the Font Awesome icon
+            const icon = document.createElement('i');
+            // Add Font Awesome classes for the spinning icon
+            icon.classList.add('fas', 'fa-spinner', 'fa-spin');
+            // Return the div container
+            return icon;
+        }
         function updateTrigger(trigger) {
             if (!trigger.id) {
                 console.error('Trigger must have an id.');
@@ -1060,7 +1093,11 @@
                 triggerElement.classList.add('trigger-button');
                 Elms.triggerList.appendChild(triggerElement);
                 triggerElement.addEventListener('click', () => {
-                    socket.emit('triggered', trigger.id); // Emit the 'triggered' event with the trigger ID
+                    api.send('triggers:triggered', trigger.id); // Emit the 'triggered' event with the trigger ID
+                });
+                triggerElement.addEventListener("contextmenu", (e) => {
+                    e.preventDefault();
+                    api.send("show-context-menu", { type: "trigger", trigger: trigger });
                 });
             }
 
@@ -1077,14 +1114,17 @@
                 let iconElement = triggerElement.querySelector('.trigger-icon');
                 if (!iconElement) {
                     iconElement = document.createElement('i');
-                    iconElement.classList.add('trigger-icon');
+                    iconElement.classList.add('trigger-icon', "fa-solid", trigger.icon);
                     triggerElement.prepend(iconElement);
                 }
-                iconElement.className = `trigger-icon ${trigger.icon}`; // Update Font Awesome icon class
+                iconElement.classList = [];
+                iconElement.classList.add("trigger-icon", "fa-solid", trigger.icon)
             }
         }
+        displayTriggers();
         function displayTriggers() {
             api.invoke("triggers:getTriggers").then((triggers) => {
+                console.log("TRIGGERS", triggers);
                 Elms.triggerList.textContent = "";
                 triggers.forEach((trigger) => {
                     updateTrigger(trigger);
@@ -1092,19 +1132,96 @@
             })
         }
 
-        api.on("triggers:addedTrigger", (trigger) => {
+        api.on("triggers:addedTrigger", (e, trigger) => {
             updateTrigger(trigger);
-        })
+        });
+
+        api.on("triggerctx:edit", (e, trigger, triggerActions) => {
+            editingTrigger = trigger;
+            editingTrigger.actions = triggerActions;
+            showEditTriggerModal();
+        });
 
         window.Icons.forEach(iconClass => {
             const iconItem = document.createElement('i');
-            iconItem.classList.add("fa-solid", iconClass)
-            iconItem.addEventListener('click', () => selectIcon(iconClass));
+            iconItem.title = iconClass.label;
+            let classes = ["fa-" + iconClass.name];
+            iconItem.classList.add("fa-fw");
+            const id = iconClass.id.split(":");
+            if (id.includes("brands")) {
+                classes.push("fa-brands");
+            }
+            if (id.includes("solid")) {
+                classes.push("fa-solid");
+            }
+            if (id.includes("regular")) {
+                classes.push("fa-regular");
+            }
+            iconItem.classList.add(...classes);
+            iconItem.addEventListener('click', () => selectIcon(classes.join(" ")));
             Elms.iconList.appendChild(iconItem);
         });
         function selectIcon(iconClass) {
-
+            Array.from(document.getElementsByClassName("selected-icon")).forEach((elm) => {
+                elm.classList.remove("selected-icon", "fa-beat");
+            });
+            Elms.editTriggerIcon.getElementsByClassName(iconClass).item(0)?.classList.add("selected-icon", "fa-beat")
         }
+        let editingTrigger = null;
+        function showEditTriggerModal() {
+            if (!editingTrigger) return;
+            Elms.editTriggerName.value = editingTrigger.name || "";
+            selectIcon(editingTrigger.icon);
+            if (editingTrigger.color) Elms.editTriggerColor.value = editingTrigger.color;
+            Elms.editTriggerModal.showModal();
+        }
+
+
+        api.on("triggerctx:viewActions", (e, trigger, triggerActions) => {
+            let editingTrigger = trigger;
+            editingTrigger.actions = triggerActions;
+            viewTriggerActionsModal(editingTrigger);
+        });
+
+        let viewingTriggerID = null;
+        function viewTriggerActionsModal(trigger) {
+            viewingTriggerID = trigger.id;
+            Elms.triggerActionsList.textContent = "";
+            console.log(trigger)
+            trigger.actions.forEach((action) => {
+
+
+                Elms.triggerActionsList.appendChild(createTriggerActionElm(action));
+            });
+            Elms.triggerNewAction.dataset.trigger = trigger.id;
+            Elms.triggerActionsModal.showModal();
+        }
+        function createTriggerActionElm(action) {
+            const triggerActionElm = document.createElement("div");
+            triggerActionElm.id = "action#" + action.id;
+            triggerActionElm.classList.add("action");
+
+            const triggerActionNameElm = document.createElement("span");
+            triggerActionNameElm.classList.add("action-name");
+            triggerActionElm.appendChild(triggerActionNameElm);
+            triggerActionElm.addEventListener("contextmenu", e => {
+                e.preventDefault();
+                api.send("show-context-menu", { type: "actionInTrigger", trigger: editingTrigger, action: action });
+            });
+            filloutActionElm(triggerActionElm, action);
+            return triggerActionElm;
+        }
+        Elms.triggerNewAction.addEventListener("click", () => {
+            console.log("New Action")
+            if (!Elms.triggerNewAction.dataset.trigger) return;
+            createActionModalTrigger = Elms.triggerNewAction.dataset.trigger;
+            createActionModal = null;
+            openCreateActionModal();
+        })
+
+        Elms.triggerActionsClose.addEventListener("click", () => {
+            Elms.triggerActionsModal.close();
+        })
     </script>
 </body>
 

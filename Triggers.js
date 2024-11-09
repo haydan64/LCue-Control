@@ -38,10 +38,14 @@ class Triggers extends EventEmitter {
         super();
         this.triggers = {};
 
+        /**
+         * Events
+         *  These can be called from server
+         */
         this.on("triggerAdded", (trigger) => {
             console.log("trigger added")
             this.triggers[trigger.id] = new Trigger(trigger.id, trigger.column, trigger.row, trigger.color, trigger.icon, trigger.name, trigger.actions);
-            this.emit("show", "addedTrigger", trigger.toJSON());
+            this.emit("show", "addedTrigger", trigger);
         });
         this.on("triggerDeleted", (id) => {
             if (!this.triggers[id]) return;
@@ -66,8 +70,13 @@ class Triggers extends EventEmitter {
             this.emit("show", "setTriggers", triggerList);
         });
     }
+
+    /**
+     *  These are being called from main.js
+     *  emit("sync") sends to server
+     */
     triggerTrigger(triggerID) {
-        this.emit("sync", "triggerTrigger");
+        this.emit("sync", "triggerTrigger", triggerID);
     }
     newTrigger() {
         this.emit("sync", "createNewTrigger");
@@ -82,7 +91,7 @@ class Triggers extends EventEmitter {
         this.emit("sync", "createAction", id, options);
     }
     getTriggers() {
-        return Object.entries(this.triggers).map(([id, trigger])=>{return trigger.toJSON});
+        return Object.entries(this.triggers).map(([id, trigger])=>{return trigger.toJSON()}).filter(v=>{return !!v});
     }
 }
 

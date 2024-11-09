@@ -36,10 +36,27 @@ body {
 }
 
 .icon-list {
+    padding-top: 10px;
+    padding-bottom: 10px;
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
+    max-height: 8em;
+    overflow-y: scroll;
+    border-radius: 5px;
+    border: solid #aaa;
+    border-width: 1px;
+}
+.icon-list i {
+    font-size: 2em;
+}
+.icon-list i:hover {
+    opacity: 0.6;
+}
+
+.selected-icon {
+    color: #29a530;
 }
 
 .icon-item {
@@ -61,8 +78,38 @@ body {
 }
 
 .triggerList {
-    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     height: 100%;
+    width: 100%;
+    padding: 10px;
+}
+.trigger-button {
+    padding: 10px 20px;
+    height: fit-content;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.trigger-button:hover {
+    opacity: 0.8;
+}
+
+.trigger-button:active {
+    opacity: 0.5;
+}
+
+.trigger-icon {
+    width: 20px;
+    height: 20px;
 }
 
 .cue-actions {
